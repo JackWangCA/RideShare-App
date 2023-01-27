@@ -13,13 +13,16 @@ class SettingsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Settings',
-          style: Theme.of(context).textTheme.headline2,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
       body: SettingsList(
         sections: [
           SettingsSection(
-            title: Text('Common', style: Theme.of(context).textTheme.bodySmall),
+            title: Text(
+              'Common',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             tiles: <SettingsTile>[
               SettingsTile.switchTile(
                 onToggle: (value) {
@@ -27,8 +30,10 @@ class SettingsPage extends StatelessWidget {
                 },
                 initialValue: themeProvider.isSystem,
                 leading: Icon(Icons.format_paint),
-                title: Text('Follow System Theme',
-                    style: Theme.of(context).textTheme.bodySmall),
+                title: Text(
+                  'Follow System Theme',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
               SettingsTile.switchTile(
                 onToggle: (value) {
@@ -37,8 +42,10 @@ class SettingsPage extends StatelessWidget {
                 initialValue: themeProvider.isDark,
                 enabled: !themeProvider.isSystem,
                 leading: Icon(Icons.sunny),
-                title: Text('Dark Mode',
-                    style: Theme.of(context).textTheme.bodySmall),
+                title: Text(
+                  'Dark Mode',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
             ],
           ),

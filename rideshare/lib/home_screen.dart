@@ -10,7 +10,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Ride',
-          style: Theme.of(context).textTheme.headline2,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
       drawer: Drawer(
@@ -20,14 +20,14 @@ class HomeScreen extends StatelessWidget {
               child: Center(
                   child: Text(
                 "L O G O",
-                style: Theme.of(context).textTheme.headline4,
+                style: Theme.of(context).textTheme.titleLarge,
               )),
             ),
             ListTile(
               leading: Icon(Icons.person),
               title: Text(
                 'My Listings',
-                style: Theme.of(context).textTheme.bodyText1,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               onTap: () {
                 null;
@@ -37,7 +37,7 @@ class HomeScreen extends StatelessWidget {
               leading: Icon(Icons.settings),
               title: Text(
                 'Settings',
-                style: Theme.of(context).textTheme.bodyText1,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               onTap: () {
                 Navigator.of(context).push(
