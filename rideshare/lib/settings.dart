@@ -27,7 +27,8 @@ class SettingsPage extends StatelessWidget {
                 },
                 initialValue: themeProvider.isSystem,
                 leading: Icon(Icons.format_paint),
-                title: Text('Follow System Theme'),
+                title: Text('Follow System Theme',
+                    style: Theme.of(context).textTheme.bodySmall),
               ),
               SettingsTile.switchTile(
                 onToggle: (value) {
@@ -36,7 +37,8 @@ class SettingsPage extends StatelessWidget {
                 initialValue: themeProvider.isDark,
                 enabled: !themeProvider.isSystem,
                 leading: Icon(Icons.sunny),
-                title: Text('Dark Mode'),
+                title: Text('Dark Mode',
+                    style: Theme.of(context).textTheme.bodySmall),
               ),
             ],
           ),
