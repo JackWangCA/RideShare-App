@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:rideshare/settings.dart';
+import 'package:rideshare/screens/SettingScreen.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +16,7 @@ class HomeScreen extends StatelessWidget {
       drawer: Drawer(
         child: ListView(
           children: [
+            //Logo in Drawer
             DrawerHeader(
               child: Center(
                   child: Text(
@@ -23,8 +24,9 @@ class HomeScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               )),
             ),
+            //User's Listings
             ListTile(
-              leading: Icon(Icons.person),
+              leading: const Icon(Icons.person),
               title: Text(
                 'My Listings',
                 style: Theme.of(context).textTheme.titleMedium,
@@ -33,15 +35,16 @@ class HomeScreen extends StatelessWidget {
                 null;
               },
             ),
+            //Settings
             ListTile(
-              leading: Icon(Icons.settings),
+              leading: const Icon(Icons.settings),
               title: Text(
                 'Settings',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               onTap: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => SettingsPage()));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const SettingsPage()));
               },
             ),
           ],

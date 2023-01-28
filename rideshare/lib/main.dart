@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rideshare/home_screen.dart';
-import 'package:rideshare/theme.dart';
-import 'package:rideshare/themeProvider.dart';
+import 'package:rideshare/screens/HomeScreen.dart';
+import 'package:rideshare/constants/theme.dart';
+import 'package:rideshare/components/themeProvider.dart';
+import 'package:rideshare/screens/SignInScreen.dart';
 
 void main() {
   runApp(
@@ -22,11 +23,12 @@ class MyApp extends StatelessWidget {
     return Consumer<ThemeProvider>(
       builder: (context, provider, child) {
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           title: 'Flutter Demo',
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: provider.themeMode,
-          home: const HomeScreen(),
+          home: SignInPage(),
         );
       },
     );
