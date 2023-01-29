@@ -16,9 +16,27 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  bool nameFormatCorrect() {
+    if (nameController.text != "" && nameController.text.length >= 4) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   //Sign User In
   void signUserUp() async {
@@ -34,13 +52,21 @@ class _SignUpPageState extends State<SignUpPage> {
         });
     //try creating the user
     try {
-      if (passwordController.text == confirmPasswordController.text) {
+      if (passwordController.text == confirmPasswordController.text &&
+          nameFormatCorrect()) {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
         );
         Navigator.pop(context);
-      } else {
+        //name is empty
+      } else if (nameController.text == "") {
+        showMessage("You haven't filled out the name");
+        //Name length shorter than 4
+      } else if (nameController.text.length < 4) {
+        showMessage("Name is too short. Try using your full name");
+        //passwords don't match
+      } else if (passwordController.text != confirmPasswordController.text) {
         Navigator.pop(context);
         showMessage("The two passwords doesn't match");
       }
@@ -101,8 +127,16 @@ class _SignUpPageState extends State<SignUpPage> {
                   'Nice to meet you!',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                //Email Field
+                //Name Field
                 const SizedBox(height: 25),
+                MyTextField(
+                  controller: nameController,
+                  hintText: 'Name',
+                  obscureText: false,
+                  inputType: TextInputType.name,
+                ),
+                //Email Field
+                const SizedBox(height: 10),
                 MyTextField(
                   controller: emailController,
                   hintText: 'Email',

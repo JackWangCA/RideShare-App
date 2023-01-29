@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
             DrawerHeader(
               child: Center(
                   child: Text(
-                "L O G O",
+                user.email!,
                 style: Theme.of(context).textTheme.titleLarge,
               )),
             ),
