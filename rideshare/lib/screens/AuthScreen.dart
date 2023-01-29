@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rideshare/screens/HomeScreen.dart';
 import 'package:rideshare/screens/SignInScreen.dart';
+import 'package:rideshare/screens/WelcomeScreen.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
@@ -19,7 +20,7 @@ class AuthPage extends StatelessWidget {
 
           //user is not logged in
           else {
-            return SignInPage();
+            return const WelcomePage();
           }
         },
       ),

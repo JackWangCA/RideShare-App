@@ -7,7 +7,9 @@ import 'package:rideshare/components/squareTile.dart';
 import 'SettingScreen.dart';
 
 class SignInPage extends StatefulWidget {
-  SignInPage({super.key});
+  final Function()? onTap;
+
+  SignInPage({super.key, required this.onTap});
 
   @override
   State<SignInPage> createState() => _SignInPageState();
@@ -52,6 +54,11 @@ class _SignInPageState extends State<SignInPage> {
       //invalid email
       else if (e.code == 'invalid-email') {
         showMessage("Hmmm, that email doesn't look right....");
+      }
+      //user disabled
+      else if (e.code == 'user-disabled') {
+        showMessage(
+            "Your account has been suspended. Contact support at xxxxxx@gmail.com");
       }
       //other errors
       else {
@@ -134,6 +141,7 @@ class _SignInPageState extends State<SignInPage> {
                 //Sign In Button
                 const SizedBox(height: 20),
                 MyButton(
+                  text: "Sign In",
                   onTap: () {
                     signUserIn();
                   },
@@ -183,11 +191,7 @@ class _SignInPageState extends State<SignInPage> {
                 // const SizedBox(height: 45),
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const SettingsPage(),
-                      ),
-                    );
+                    widget.onTap!();
                   },
                   child: Container(
                     padding: EdgeInsets.all(15.0),
@@ -209,7 +213,7 @@ class _SignInPageState extends State<SignInPage> {
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium!
-                              .copyWith(color: Colors.grey),
+                              .copyWith(color: Theme.of(context).buttonColor),
                         ),
                       ],
                     ),
