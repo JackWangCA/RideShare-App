@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rideshare/components/myButton.dart';
@@ -16,22 +17,37 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final nameController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
-    nameController.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
   }
 
-  bool nameFormatCorrect() {
-    if (nameController.text != "" && nameController.text.length >= 4) {
+  //check if name field has correct format
+  bool firstnameFormatCorrect() {
+    if (firstNameController.text.trim().isNotEmpty &&
+        firstNameController.text.trim().length >= 3 &&
+        firstNameController.text.trim().length < 10) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool lastnameFormatCorrect() {
+    if (lastNameController.text.trim().isNotEmpty &&
+        lastNameController.text.trim().length >= 3 &&
+        lastNameController.text.trim().length < 10) {
       return true;
     } else {
       return false;
@@ -53,20 +69,31 @@ class _SignUpPageState extends State<SignUpPage> {
     //try creating the user
     try {
       if (passwordController.text == confirmPasswordController.text &&
-          nameFormatCorrect()) {
+          firstnameFormatCorrect() &&
+          lastnameFormatCorrect()) {
+        //create user
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text,
-          password: passwordController.text,
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+        //Also need to upload user details
+        addUserDetails(
+          firstNameController.text.trim(),
+          lastNameController.text.trim(),
+          emailController.text.trim(),
         );
         Navigator.pop(context);
         //name is empty
-      } else if (nameController.text == "") {
-        showMessage("You haven't filled out the name");
+      } else if (!firstnameFormatCorrect()) {
+        Navigator.pop(context);
+        showMessage("First name should be between 3 and 10 characters");
         //Name length shorter than 4
-      } else if (nameController.text.length < 4) {
-        showMessage("Name is too short. Try using your full name");
+      } else if (!lastnameFormatCorrect()) {
+        Navigator.pop(context);
+        showMessage("Last name should be between 3 and 10 characters");
         //passwords don't match
-      } else if (passwordController.text != confirmPasswordController.text) {
+      } else if (passwordController.text.trim() !=
+          confirmPasswordController.text.trim()) {
         Navigator.pop(context);
         showMessage("The two passwords doesn't match");
       }
@@ -82,11 +109,23 @@ class _SignUpPageState extends State<SignUpPage> {
       else if (e.code == 'invalid-email') {
         showMessage("Hmmm, that email doesn't look right....");
       }
+      //email already in use
+      else if (e.code == 'email-already-in-use') {
+        showMessage("You already signed up with that email. Go sign in!");
+      }
       //other errors
       else {
         showMessage(e.code);
       }
     }
+  }
+
+  Future addUserDetails(String firstName, String lastName, String email) async {
+    await FirebaseFirestore.instance.collection('users').add({
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+    });
   }
 
   void showMessage(String title) {
@@ -127,11 +166,19 @@ class _SignUpPageState extends State<SignUpPage> {
                   'Nice to meet you!',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                //Name Field
+                //First Name Field
                 const SizedBox(height: 25),
                 MyTextField(
-                  controller: nameController,
-                  hintText: 'Name',
+                  controller: firstNameController,
+                  hintText: 'First Name',
+                  obscureText: false,
+                  inputType: TextInputType.name,
+                ),
+                //Last Name Field
+                const SizedBox(height: 10),
+                MyTextField(
+                  controller: lastNameController,
+                  hintText: 'Last Name',
                   obscureText: false,
                   inputType: TextInputType.name,
                 ),

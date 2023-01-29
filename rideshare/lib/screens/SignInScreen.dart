@@ -36,7 +36,8 @@ class _SignInPageState extends State<SignInPage> {
     //try signinig in
     try {
       //check if two fields are empty
-      if (emailController.text != "" && passwordController.text != "") {
+      if (emailController.text.trim().isNotEmpty &&
+          passwordController.text.trim().isNotEmpty) {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
