@@ -4,6 +4,7 @@ import 'package:rideshare/components/myButton.dart';
 import 'package:rideshare/components/myTextField.dart';
 import 'package:rideshare/components/squareTile.dart';
 
+import 'ForgotPasswordScreen.dart';
 import 'SettingScreen.dart';
 
 class SignInPage extends StatefulWidget {
@@ -34,12 +35,19 @@ class _SignInPageState extends State<SignInPage> {
         });
     //try signinig in
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-      //pop the circle
-      Navigator.pop(context);
+      //check if two fields are empty
+      if (emailController.text != "" && passwordController.text != "") {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+        //pop the circle
+        Navigator.pop(context);
+      } else {
+        //pop the circle
+        Navigator.pop(context);
+        showMessage("You haven't even entered anything yet!  :(");
+      }
     } on FirebaseAuthException catch (e) {
       //pop the circle
       Navigator.pop(context);
@@ -123,19 +131,31 @@ class _SignInPageState extends State<SignInPage> {
                 ),
                 const SizedBox(height: 10),
                 //Forgot Password?
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Forgot Password?',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(color: Colors.grey),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: ((context) {
+                          return ForgotPasswordPage();
+                        }),
                       ),
-                    ],
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Forgot Password?',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(color: Theme.of(context).buttonColor),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 //Sign In Button
