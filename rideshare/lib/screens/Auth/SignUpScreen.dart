@@ -6,7 +6,7 @@ import 'package:rideshare/components/myTextField.dart';
 import 'package:rideshare/components/squareTile.dart';
 import 'package:rideshare/resources/AuthService.dart';
 
-import 'SettingScreen.dart';
+import '../SettingScreen.dart';
 
 class SignUpPage extends StatefulWidget {
   final Function()? onTap;

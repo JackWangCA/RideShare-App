@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:rideshare/resources/AuthService.dart';
+import 'package:rideshare/screens/ProfileScreen.dart';
 import 'package:rideshare/screens/SettingScreen.dart';
 import 'package:rideshare/models/user.dart' as model;
 
@@ -20,7 +21,10 @@ class _HomePageState extends State<HomePage> {
   String email = "";
   String firstName = "";
   String lastName = "";
+  String photoUrl = "";
   bool isLoading = false;
+  bool hasPhoto = false;
+
   @override
   void initState() {
     super.initState();
@@ -37,17 +41,17 @@ class _HomePageState extends State<HomePage> {
           .doc(authUser.uid)
           .get();
 
-      // // get post lENGTH
-      // var postSnap = await FirebaseFirestore.instance
-      //     .collection('posts')
-      //     .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-      //     .get();
-
       model.User user = model.User.fromSnap(userSnap);
-      // uid = user.uid;
-      // email = user.email;
-      // firstName = user.firstName;
-      // lastName = user.lastName;
+      uid = user.uid;
+      email = user.email;
+      firstName = user.firstName;
+      lastName = user.lastName;
+      photoUrl = user.photoUrl;
+      if (photoUrl.isEmpty) {
+        hasPhoto = false;
+      } else {
+        hasPhoto = true;
+      }
     } catch (e) {
       print(e);
     }
@@ -73,11 +77,17 @@ class _HomePageState extends State<HomePage> {
               actions: <Widget>[
                 IconButton(
                     onPressed: () {
-                      Navigator.of(context).push(
+                      Navigator.of(context)
+                          .push(
                         MaterialPageRoute(
                           builder: (context) => const CreateListingPage(),
                         ),
-                      );
+                      )
+                          .then((value) {
+                        setState(() {
+                          getData();
+                        });
+                      });
                     },
                     icon: const Icon(Icons.add))
               ],
@@ -87,13 +97,38 @@ class _HomePageState extends State<HomePage> {
             drawer: Drawer(
               child: ListView(
                 children: [
-                  //Logo in Drawer
                   DrawerHeader(
                     child: Center(
-                        child: Text(
-                      "Bruh",
-                      style: Theme.of(context).textTheme.titleLarge,
-                    )),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            width: 80.0,
+                            height: 80.0,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: hasPhoto
+                                  ? Image.network(photoUrl)
+                                  : Image.asset(
+                                      'lib/images/default_photo.jpeg'),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10.0,
+                          ),
+                          Text(
+                            "$firstName $lastName",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            email,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
 
                   //User's Profile
@@ -104,7 +139,11 @@ class _HomePageState extends State<HomePage> {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     onTap: () {
-                      null;
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(),
+                        ),
+                      );
                     },
                   ),
 

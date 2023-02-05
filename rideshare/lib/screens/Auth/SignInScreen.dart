@@ -6,7 +6,7 @@ import 'package:rideshare/components/squareTile.dart';
 import 'package:rideshare/resources/AuthService.dart';
 
 import 'ForgotPasswordScreen.dart';
-import 'SettingScreen.dart';
+import '../SettingScreen.dart';
 
 class SignInPage extends StatefulWidget {
   final Function()? onTap;

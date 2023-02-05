@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rideshare/screens/AuthScreen.dart';
+import 'package:rideshare/screens/Auth/AuthScreen.dart';
 import 'package:rideshare/screens/HomeScreen.dart';
 import 'package:rideshare/constants/theme.dart';
 import 'package:rideshare/components/themeProvider.dart';
-import 'package:rideshare/screens/SignInScreen.dart';
+import 'package:rideshare/screens/Auth/SignInScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 

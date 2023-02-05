@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rideshare/screens/SignInScreen.dart';
+import 'package:rideshare/screens/Auth/SignInScreen.dart';
 
 import 'SignUpScreen.dart';
 
