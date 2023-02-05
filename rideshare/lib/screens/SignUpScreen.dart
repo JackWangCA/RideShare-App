@@ -114,7 +114,7 @@ class _SignUpPageState extends State<SignUpPage> {
           isLoading = false;
         });
       }
-      showMessage("First name should be between 3 and 10 characters");
+      showMessage("First name should be between 2 and 10 characters");
     }
     //Name length shorter than 4
     else if (!lastnameFormatCorrect()) {
@@ -123,7 +123,7 @@ class _SignUpPageState extends State<SignUpPage> {
           isLoading = false;
         });
       }
-      showMessage("Last name should be between 3 and 10 characters");
+      showMessage("Last name should be between 2 and 10 characters");
     }
     //passwords don't match
     else if (passwordController.text.trim() !=
@@ -187,11 +187,19 @@ class _SignUpPageState extends State<SignUpPage> {
                       const SizedBox(height: 50),
 
                       //logo
-                      const Icon(
-                        Icons.car_rental,
-                        size: 100,
-                      ),
-                      const SizedBox(height: 50),
+                      Theme.of(context).brightness == Brightness.light
+                          ? Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(60, 10, 60, 40),
+                              child: Image.asset(
+                                  'lib/images/logo/getaway_black.png'),
+                            )
+                          : Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(60, 10, 60, 40),
+                              child: Image.asset(
+                                  'lib/images/logo/getaway_white.png'),
+                            ),
 
                       //Welcome Text
                       Text(

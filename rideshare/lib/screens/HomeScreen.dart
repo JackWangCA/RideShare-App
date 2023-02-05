@@ -5,6 +5,8 @@ import 'package:rideshare/resources/AuthService.dart';
 import 'package:rideshare/screens/SettingScreen.dart';
 import 'package:rideshare/models/user.dart' as model;
 
+import 'CreateListingScreen.dart';
+
 class HomePage extends StatefulWidget {
   HomePage({super.key});
 
@@ -42,10 +44,10 @@ class _HomePageState extends State<HomePage> {
       //     .get();
 
       model.User user = model.User.fromSnap(userSnap);
-      uid = user.uid;
-      email = user.email;
-      firstName = user.firstName;
-      lastName = user.lastName;
+      // uid = user.uid;
+      // email = user.email;
+      // firstName = user.firstName;
+      // lastName = user.lastName;
     } catch (e) {
       print(e);
     }
@@ -65,10 +67,23 @@ class _HomePageState extends State<HomePage> {
         : Scaffold(
             appBar: AppBar(
               title: Text(
-                'Ride',
+                "GETAWAY",
                 style: Theme.of(context).textTheme.titleLarge,
               ),
+              actions: <Widget>[
+                IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const CreateListingPage(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add))
+              ],
             ),
+
+            //Drawer on the left side of the App Bar
             drawer: Drawer(
               child: ListView(
                 children: [
@@ -76,13 +91,26 @@ class _HomePageState extends State<HomePage> {
                   DrawerHeader(
                     child: Center(
                         child: Text(
-                      firstName,
+                      "Bruh",
                       style: Theme.of(context).textTheme.titleLarge,
                     )),
                   ),
-                  //User's Listings
+
+                  //User's Profile
                   ListTile(
                     leading: const Icon(Icons.person),
+                    title: Text(
+                      'My Profile',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    onTap: () {
+                      null;
+                    },
+                  ),
+
+                  //User's Listings
+                  ListTile(
+                    leading: const Icon(Icons.car_rental),
                     title: Text(
                       'My Listings',
                       style: Theme.of(context).textTheme.titleMedium,
@@ -91,6 +119,7 @@ class _HomePageState extends State<HomePage> {
                       null;
                     },
                   ),
+
                   //Settings
                   ListTile(
                     leading: const Icon(Icons.settings),
@@ -106,6 +135,8 @@ class _HomePageState extends State<HomePage> {
                       );
                     },
                   ),
+
+                  //Sign Out
                   ListTile(
                     leading: const Icon(Icons.logout),
                     title: Text(
@@ -119,7 +150,9 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            body: Center(child: Text('Logged In As: ${authUser.email!}')),
+            body: Center(
+              child: Text('Logged In As: ${authUser.email!}'),
+            ),
           );
   }
 }

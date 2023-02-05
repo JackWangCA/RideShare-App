@@ -119,14 +119,23 @@ class _SignInPageState extends State<SignInPage> {
                     children: [
                       const SizedBox(height: 50),
                       //logo
-                      const Icon(
-                        Icons.car_rental,
-                        size: 100,
-                      ),
-                      const SizedBox(height: 50),
+                      Theme.of(context).brightness == Brightness.light
+                          ? Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(60, 10, 60, 40),
+                              child: Image.asset(
+                                  'lib/images/logo/getaway_black.png'),
+                            )
+                          : Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(60, 10, 60, 40),
+                              child: Image.asset(
+                                  'lib/images/logo/getaway_white.png'),
+                            ),
+                      const SizedBox(height: 25),
                       //Welcome Text
                       Text(
-                        'Welcome Back!',
+                        'Hi there!',
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       //Email Field

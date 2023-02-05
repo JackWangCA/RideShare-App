@@ -5,6 +5,7 @@ class User {
   String uid;
   String email;
   String bio;
+  String photoUrl;
   bool emailVerified;
   String firstName;
   String lastName;
@@ -15,11 +16,12 @@ class User {
   User({
     required this.uid,
     required this.email,
-    this.bio = "",
     this.emailVerified = false,
+    this.bio = "",
+    this.photoUrl = "",
     required this.firstName,
     required this.lastName,
-    this.phoneNumber = '',
+    this.phoneNumber = "",
     this.phoneVerified = false,
     required this.listings,
   });
@@ -31,6 +33,8 @@ class User {
       uid: snapshot["uid"],
       email: snapshot["email"],
       emailVerified: snapshot["emailVerified"],
+      bio: snapshot["bio"],
+      photoUrl: snapshot["photoUrl"],
       firstName: snapshot["firstName"],
       lastName: snapshot["lastName"],
       phoneNumber: snapshot["phoneNumber"],
@@ -44,6 +48,7 @@ class User {
         "email": email,
         "emailVerified": emailVerified,
         "bio": bio,
+        "photoUrl": photoUrl,
         "firstName": firstName,
         "lastName": lastName,
         "phoneNumber": phoneNumber,
