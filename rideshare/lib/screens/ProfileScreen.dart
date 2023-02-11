@@ -56,12 +56,10 @@ class _ProfilePageState extends State<ProfilePage> {
       uid = user.uid;
       email = user.email;
       bio = user.bio;
-      emailVerified = user.emailVerified;
       firstName = user.firstName;
       lastName = user.lastName;
       photoUrl = user.photoUrl;
       phoneNumber = user.phoneNumber;
-      phoneVerified = user.phoneVerified;
       if (photoUrl.isEmpty) {
         hasPhoto = false;
       } else {
@@ -120,15 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   Text(
-                    emailVerified ? "Email Verified" : "Email Unverified",
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  Text(
                     phoneNumber.isEmpty ? "No Phone Number" : phoneNumber,
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  Text(
-                    phoneVerified ? "Phone Verified" : "Phone Unverified",
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   Text(
