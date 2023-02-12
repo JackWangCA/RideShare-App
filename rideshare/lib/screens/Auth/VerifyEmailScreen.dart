@@ -19,6 +19,7 @@ class VerifyEmailPage extends StatefulWidget {
 class _VerifyEmailPageState extends State<VerifyEmailPage> {
   bool isEmailVerified = false;
   bool canResendEmail = true;
+  bool dialogOpen = false;
   Timer? timer;
   @override
   void initState() {
@@ -40,12 +41,24 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
       setState(() {
         canResendEmail = false;
       });
-      await Future.delayed(const Duration(seconds: 8));
+      await Future.delayed(const Duration(seconds: 10));
       setState(() {
         canResendEmail = true;
       });
     } catch (e) {
-      showMessage(e.toString());
+      if (dialogOpen) {
+        Navigator.pop(context);
+        setState(() {
+          dialogOpen = false;
+        });
+      }
+      if (e.toString() ==
+          "[firebase_auth/too-many-requests] We have blocked all requests from this device due to unusual activity. Try again later.") {
+        showMessage(
+            "You can't request more verification code at the moment, try again later");
+      } else {
+        showMessage(e.toString());
+      }
     }
   }
 
@@ -71,6 +84,9 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   }
 
   void showMessage(String title) {
+    setState(() {
+      dialogOpen = true;
+    });
     showDialog(
         context: context,
         builder: (context) {

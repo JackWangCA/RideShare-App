@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:rideshare/models/user.dart' as model;
 
 class AuthService {
@@ -101,6 +102,20 @@ class AuthService {
       }
     } else {
       result = "Some fields are left empty, please try again";
+    }
+    return result;
+  }
+
+  Future<String> deleteUser() async {
+    String result = "There has been some problems, try again later.";
+    if (_auth.currentUser != null) {
+      String uid = _auth.currentUser!.uid;
+      await _firestore.collection('users').doc(_auth.currentUser!.uid).delete();
+      Reference ref =
+          FirebaseStorage.instance.ref().child("Profile Images").child(uid);
+      await ref.delete();
+      await _auth.currentUser!.delete();
+      result = "success";
     }
     return result;
   }
