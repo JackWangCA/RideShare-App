@@ -170,20 +170,31 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       height: 120.0,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(100),
-                        child: hasPhoto
-                            ? Image.network(
-                                photoUrl,
+                        // child: hasPhoto
+                        //     ? Image.network(
+                        //         photoUrl,
+                        //         fit: BoxFit.cover,
+                        //       )
+                        //     : image != null
+                        //         ? Image.file(
+                        //             File(image!.path),
+                        //             fit: BoxFit.cover,
+                        //           )
+                        //         : Image.asset(
+                        //             'lib/images/default_photo.jpeg',
+                        //             fit: BoxFit.cover,
+                        //           ),
+                        child: image != null
+                            ? Image.file(
+                                File(image!.path),
                                 fit: BoxFit.cover,
                               )
-                            : image != null
-                                ? Image.file(
-                                    File(image!.path),
+                            : hasPhoto
+                                ? Image.network(
+                                    photoUrl,
                                     fit: BoxFit.cover,
                                   )
-                                : Image.asset(
-                                    'lib/images/default_photo.jpeg',
-                                    fit: BoxFit.cover,
-                                  ),
+                                : Image.asset('lib/images/default_photo.jpeg'),
                       ),
                     ),
                   ),

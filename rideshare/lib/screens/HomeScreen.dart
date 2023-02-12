@@ -89,7 +89,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                       )
                           .then((value) {
-                        setState(() {});
+                        setState(() {
+                          getData();
+                        });
                       });
                     },
                     icon: const Icon(Icons.add))
