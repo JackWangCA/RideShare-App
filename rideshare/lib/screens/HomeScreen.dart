@@ -26,6 +26,11 @@ class _HomePageState extends State<HomePage> {
   bool hasPhoto = false;
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     getData();
@@ -84,9 +89,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       )
                           .then((value) {
-                        setState(() {
-                          getData();
-                        });
+                        setState(() {});
                       });
                     },
                     icon: const Icon(Icons.add))

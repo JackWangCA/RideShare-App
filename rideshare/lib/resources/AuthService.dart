@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rideshare/models/user.dart' as model;
@@ -63,6 +65,36 @@ class AuthService {
           email: email.trim(),
           password: password.trim(),
         );
+        result = "success";
+      } on FirebaseAuthException catch (e) {
+        result = e.code;
+      }
+    } else {
+      result = "Some fields are left empty, please try again";
+    }
+    return result;
+  }
+
+  Future<String> updateUserDetails(
+      {required String firstName,
+      required String lastName,
+      required String bio,
+      required String photoUrl}) async {
+    String result = "Some error occurred, please try again later";
+    if (firstName.isNotEmpty && lastName.isNotEmpty) {
+      try {
+        User currentUser = _auth.currentUser!;
+        DocumentSnapshot documentSnapshot =
+            await _firestore.collection('users').doc(currentUser.uid).get();
+        model.User user = model.User.fromSnap(documentSnapshot);
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.bio = bio;
+        user.photoUrl = photoUrl;
+
+        // adding user in our database
+        await _firestore.collection("users").doc(user.uid).set(user.toJson());
+
         result = "success";
       } on FirebaseAuthException catch (e) {
         result = e.code;
