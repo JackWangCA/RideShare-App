@@ -125,6 +125,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         bio: bioController.text.trim(),
         photoUrl: photoUrl,
       );
+    } else {
+      result = "Format is incorrect, try again.";
     }
     setState(() {
       isLoading = false;
@@ -239,7 +241,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             if (result != "success") {
                               showMessage(result);
                             } else {
-                              //Navigator.pop(context);
+                              Navigator.pop(context);
                             }
                           },
                         ),

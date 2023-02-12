@@ -16,7 +16,7 @@ class _CreateListingPageState extends State<CreateListingPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Create a Ride',
+          'Plan Your Ride',
           style: Theme.of(context).textTheme.titleLarge,
         ),
       ),

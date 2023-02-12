@@ -106,7 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         .copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    email,
+                    email.isEmpty ? "No email" : email,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   Text(
