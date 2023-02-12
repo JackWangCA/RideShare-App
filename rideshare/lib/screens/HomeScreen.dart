@@ -107,9 +107,14 @@ class _HomePageState extends State<HomePage> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(100),
                               child: hasPhoto
-                                  ? Image.network(photoUrl)
+                                  ? Image.network(
+                                      photoUrl,
+                                      fit: BoxFit.cover,
+                                    )
                                   : Image.asset(
-                                      'lib/images/default_photo.jpeg'),
+                                      'lib/images/default_photo.jpeg',
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                           ),
                           const SizedBox(

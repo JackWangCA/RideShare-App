@@ -94,6 +94,9 @@ class _SignUpPageState extends State<SignUpPage> {
         //email already in use
         else if (result == 'email-already-in-use') {
           showMessage("You already signed up with that email. Go sign in!");
+        } else if (result == 'network-request-failed') {
+          showMessage(
+              "Can't connect to internet, please check your connection!");
         }
         //other errors
         else {

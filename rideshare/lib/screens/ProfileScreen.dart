@@ -25,9 +25,6 @@ class _ProfilePageState extends State<ProfilePage> {
   String lastName = "";
   String bio = "";
   String photoUrl = "";
-  bool emailVerified = false;
-  String phoneNumber = "";
-  bool phoneVerified = false;
   bool hasPhoto = false;
 
   @override
@@ -59,7 +56,6 @@ class _ProfilePageState extends State<ProfilePage> {
       firstName = user.firstName;
       lastName = user.lastName;
       photoUrl = user.photoUrl;
-      phoneNumber = user.phoneNumber;
       if (photoUrl.isEmpty) {
         hasPhoto = false;
       } else {
@@ -99,8 +95,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(100),
                       child: hasPhoto
-                          ? Image.network(photoUrl)
-                          : Image.asset('lib/images/default_photo.jpeg'),
+                          ? Image.network(
+                              photoUrl,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset(
+                              'lib/images/default_photo.jpeg',
+                              fit: BoxFit.cover,
+                            ),
                     ),
                   ),
                   const SizedBox(
@@ -115,10 +117,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   Text(
                     email,
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  Text(
-                    phoneNumber.isEmpty ? "No Phone Number" : phoneNumber,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   Text(

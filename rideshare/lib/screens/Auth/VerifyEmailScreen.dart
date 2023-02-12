@@ -37,6 +37,13 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     try {
       final user = FirebaseAuth.instance.currentUser!;
       await user.sendEmailVerification();
+      setState(() {
+        canResendEmail = false;
+      });
+      await Future.delayed(const Duration(seconds: 8));
+      setState(() {
+        canResendEmail = true;
+      });
     } catch (e) {
       showMessage(e.toString());
     }
@@ -112,7 +119,6 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                       canResendEmail
                           ? reSendVerificationEmail()
                           : showMessage("You have already resent a email!");
-                      canResendEmail = false;
                     },
                   ),
                 ],
