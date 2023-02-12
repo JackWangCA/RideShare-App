@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:rideshare/models/user.dart' as model;
 import 'package:rideshare/resources/AuthService.dart';
 
@@ -47,10 +48,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     getData();
   }
 
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    bioController.dispose();
+    super.dispose();
+  }
+
   getData() async {
-    setState(() {
-      isLoading = true;
-    });
     try {
       var userSnap = await FirebaseFirestore.instance
           .collection('users')
@@ -75,7 +81,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       print(e);
     }
     setState(() {
-      isLoading = false;
       firstNameController.text = firstName;
       lastNameController.text = lastName;
       bioController.text = bio;
@@ -103,6 +108,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<String> saveChanges() async {
+    setState(() {
+      isLoading = true;
+    });
     String result = "There has been some issues, please try again later.";
     if (image != null) {
       Reference ref =
@@ -118,6 +126,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         photoUrl: photoUrl,
       );
     }
+    setState(() {
+      isLoading = false;
+    });
     return result;
   }
 
@@ -141,110 +152,103 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Edit Profile",
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Container(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      image = await imagePicker.pickImage(
-                        source: ImageSource.gallery,
-                        maxHeight: 512,
-                        maxWidth: 512,
-                        imageQuality: 75,
-                      );
-                      setState(() {});
-                    },
-                    child: SizedBox(
-                      width: 120.0,
-                      height: 120.0,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        // child: hasPhoto
-                        //     ? Image.network(
-                        //         photoUrl,
-                        //         fit: BoxFit.cover,
-                        //       )
-                        //     : image != null
-                        //         ? Image.file(
-                        //             File(image!.path),
-                        //             fit: BoxFit.cover,
-                        //           )
-                        //         : Image.asset(
-                        //             'lib/images/default_photo.jpeg',
-                        //             fit: BoxFit.cover,
-                        //           ),
-                        child: image != null
-                            ? Image.file(
-                                File(image!.path),
-                                fit: BoxFit.cover,
-                              )
-                            : hasPhoto
-                                ? Image.network(
-                                    photoUrl,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset('lib/images/default_photo.jpeg'),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10.0,
-                  ),
-                  const SizedBox(height: 25),
-                  //First Name Field
-                  MyTextField(
-                    controller: firstNameController,
-                    hintText: 'First Name',
-                    obscureText: false,
-                    inputType: TextInputType.name,
-                  ),
-                  //Last Name Field
-                  const SizedBox(height: 10),
-                  MyTextField(
-                    controller: lastNameController,
-                    hintText: 'Last Name',
-                    obscureText: false,
-                    inputType: TextInputType.name,
-                  ),
-                  const SizedBox(height: 10),
-                  MyTextField(
-                    controller: bioController,
-                    hintText: 'Bio',
-                    obscureText: false,
-                    inputType: TextInputType.text,
-                  ),
-                  const SizedBox(
-                    height: 10.0,
-                  ),
-                  const SizedBox(height: 20),
-                  MyButton(
-                    text: "Save Changes",
-                    onTap: () async {
-                      String result = await saveChanges();
-                      if (result != "success") {
-                        showMessage(result);
-                      } else {
-                        Navigator.pop(context);
-                      }
-                    },
-                  ),
-                ],
+    return isLoading
+        ? const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+            ),
+          )
+        : Scaffold(
+            appBar: AppBar(
+              title: Text(
+                "Edit Profile",
+                style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
-          ),
-        ),
-      ),
-    );
+            body: SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Container(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            image = await imagePicker.pickImage(
+                              source: ImageSource.gallery,
+                              maxHeight: 512,
+                              maxWidth: 512,
+                              imageQuality: 75,
+                            );
+                            setState(() {});
+                          },
+                          child: SizedBox(
+                            width: 120.0,
+                            height: 120.0,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: image != null
+                                  ? Image.file(
+                                      File(image!.path),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : hasPhoto
+                                      ? Image.network(
+                                          photoUrl,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.asset(
+                                          'lib/images/default_photo.jpeg'),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10.0,
+                        ),
+                        const SizedBox(height: 25),
+                        //First Name Field
+                        MyTextField(
+                          controller: firstNameController,
+                          hintText: 'First Name',
+                          obscureText: false,
+                          inputType: TextInputType.name,
+                        ),
+                        //Last Name Field
+                        const SizedBox(height: 10),
+                        MyTextField(
+                          controller: lastNameController,
+                          hintText: 'Last Name',
+                          obscureText: false,
+                          inputType: TextInputType.name,
+                        ),
+                        const SizedBox(height: 10),
+                        MyTextField(
+                          controller: bioController,
+                          hintText: 'Bio',
+                          obscureText: false,
+                          inputType: TextInputType.text,
+                        ),
+                        const SizedBox(
+                          height: 10.0,
+                        ),
+                        const SizedBox(height: 20),
+                        MyButton(
+                          text: "Save Changes",
+                          onTap: () async {
+                            String result = await saveChanges();
+                            if (result != "success") {
+                              showMessage(result);
+                            } else {
+                              //Navigator.pop(context);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
   }
 }

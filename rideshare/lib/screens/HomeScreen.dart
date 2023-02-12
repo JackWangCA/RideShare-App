@@ -33,25 +33,33 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    getData();
-  }
-
-  getData() async {
     setState(() {
       isLoading = true;
     });
+    getData();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  getData() async {
+    // setState(() {
+    //   isLoading = true;
+    // });
     try {
       var userSnap = await FirebaseFirestore.instance
           .collection('users')
           .doc(authUser.uid)
           .get();
+      setState(() {
+        model.User user = model.User.fromSnap(userSnap);
+        uid = user.uid;
+        email = user.email;
+        firstName = user.firstName;
+        lastName = user.lastName;
+        photoUrl = user.photoUrl;
+      });
 
-      model.User user = model.User.fromSnap(userSnap);
-      uid = user.uid;
-      email = user.email;
-      firstName = user.firstName;
-      lastName = user.lastName;
-      photoUrl = user.photoUrl;
       if (photoUrl.isEmpty) {
         hasPhoto = false;
       } else {
@@ -60,10 +68,36 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       print(e);
     }
-    setState(() {
-      isLoading = false;
-    });
+    // setState(() {
+    //   isLoading = false;
+    // });
   }
+
+  // refreshProfileData() async {
+  //   try {
+  //     var userSnap = await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(authUser.uid)
+  //         .get();
+
+  //     setState(() {
+  //       model.User user = model.User.fromSnap(userSnap);
+  //       uid = user.uid;
+  //       email = user.email;
+  //       firstName = user.firstName;
+  //       lastName = user.lastName;
+  //       photoUrl = user.photoUrl;
+  //     });
+
+  //     if (photoUrl.isEmpty) {
+  //       hasPhoto = false;
+  //     } else {
+  //       hasPhoto = true;
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -149,11 +183,18 @@ class _HomePageState extends State<HomePage> {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     onTap: () {
-                      Navigator.of(context).push(
+                      Navigator.of(context)
+                          .push(
                         MaterialPageRoute(
                           builder: (context) => const ProfilePage(),
                         ),
-                      );
+                      )
+                          .then((value) {
+                        setState(() {
+                          getData();
+                        });
+                      });
+                      ;
                     },
                   ),
 

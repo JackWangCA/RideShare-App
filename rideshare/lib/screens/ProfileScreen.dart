@@ -17,7 +17,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final authUser = FirebaseAuth.instance.currentUser!;
-  bool isLoading = false;
 
   String uid = "";
   String email = "";
@@ -34,28 +33,22 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   getData() async {
-    setState(() {
-      isLoading = true;
-    });
     try {
       var userSnap = await FirebaseFirestore.instance
           .collection('users')
           .doc(authUser.uid)
           .get();
 
-      // // get post lENGTH
-      // var postSnap = await FirebaseFirestore.instance
-      //     .collection('posts')
-      //     .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-      //     .get();
+      setState(() {
+        model.User user = model.User.fromSnap(userSnap);
+        uid = user.uid;
+        email = user.email;
+        bio = user.bio;
+        firstName = user.firstName;
+        lastName = user.lastName;
+        photoUrl = user.photoUrl;
+      });
 
-      model.User user = model.User.fromSnap(userSnap);
-      uid = user.uid;
-      email = user.email;
-      bio = user.bio;
-      firstName = user.firstName;
-      lastName = user.lastName;
-      photoUrl = user.photoUrl;
       if (photoUrl.isEmpty) {
         hasPhoto = false;
       } else {
@@ -64,9 +57,6 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       print(e);
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   Widget build(BuildContext context) {
