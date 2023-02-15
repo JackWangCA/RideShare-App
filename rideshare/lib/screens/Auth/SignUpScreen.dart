@@ -35,27 +35,6 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
-  //check if name field has correct format
-  bool firstnameFormatCorrect() {
-    if (firstNameController.text.trim().isNotEmpty &&
-        firstNameController.text.trim().length >= 2 &&
-        firstNameController.text.trim().length < 10) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  bool lastnameFormatCorrect() {
-    if (lastNameController.text.trim().isNotEmpty &&
-        lastNameController.text.trim().length >= 2 &&
-        lastNameController.text.trim().length < 10) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   //Sign User In
   void signUp() async {
     //do a loading circle
@@ -64,86 +43,18 @@ class _SignUpPageState extends State<SignUpPage> {
     });
     //try creating the user
 
-    //format checking
-    if (passwordController.text == confirmPasswordController.text &&
-        firstnameFormatCorrect() &&
-        lastnameFormatCorrect()) {
-      //create user
-      String result = await AuthService().signUserUp(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-        firstName: firstNameController.text.trim(),
-        lastName: lastNameController.text.trim(),
-      );
-      //server side issues
-      if (result != "success") {
-        //pop the circle
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-          });
-        }
-        //Weak-Password
-        if (result == 'weak-password') {
-          showMessage("Come on! You can come up with a better password!");
-        }
-        //invalid email
-        else if (result == 'invalid-email') {
-          showMessage("Hmmm, that email doesn't look right....");
-        }
-        //email already in use
-        else if (result == 'email-already-in-use') {
-          showMessage("You already signed up with that email. Go sign in!");
-        } else if (result == 'network-request-failed') {
-          showMessage(
-              "Can't connect to internet, please check your connection!");
-        }
-        //other errors
-        else {
-          showMessage(result);
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-          });
-        }
-      }
-      //name is empty
-      //front-end issues
-    } else if (!firstnameFormatCorrect()) {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-      showMessage("First name should be between 2 and 10 characters");
-    }
-    //Name length shorter than 4
-    else if (!lastnameFormatCorrect()) {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-      showMessage("Last name should be between 2 and 10 characters");
-    }
-    //passwords don't match
-    else if (passwordController.text.trim() !=
-        confirmPasswordController.text.trim()) {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-      showMessage("The two passwords doesn't match");
-    } else {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-      showMessage("Some errors occurred, please try again later");
+    String result = await AuthService().signUserUp(
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+      confirmPassword: confirmPasswordController.text.trim(),
+      firstName: firstNameController.text.trim(),
+      lastName: lastNameController.text.trim(),
+    );
+    setState(() {
+      isLoading = false;
+    });
+    if (result != "success") {
+      showMessage(result);
     }
   }
 

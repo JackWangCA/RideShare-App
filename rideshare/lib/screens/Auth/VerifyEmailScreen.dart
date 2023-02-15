@@ -112,7 +112,8 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
               title: const Text("Verify Email"),
               actions: [
                 IconButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      await AuthService().deleteUser();
                       AuthService().signOut();
                     },
                     icon: const Icon(Icons.logout))

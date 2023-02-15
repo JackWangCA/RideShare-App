@@ -21,7 +21,11 @@ class _CreateListingPageState extends State<CreateListingPage> {
         ),
       ),
       body: SafeArea(
-        child: Column(),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(),
+          ),
+        ),
       ),
     );
   }

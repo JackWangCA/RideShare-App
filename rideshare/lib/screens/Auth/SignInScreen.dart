@@ -46,27 +46,8 @@ class _SignInPageState extends State<SignInPage> {
             isLoading = false;
           });
         }
-
-        if (result == 'user-not-found') {
-          showMessage("Seems like you haven't signed up yet");
-        }
-        //Weak-Password
-        else if (result == 'wrong-password') {
-          showMessage('Wrong Password. Maybe try again?');
-        }
-        //invalid email
-        else if (result == 'invalid-email') {
-          showMessage("Hmmm, that email doesn't look right....");
-        }
-        //email already in use
-        else if (result == 'user-disabled') {
-          showMessage(
-              "Your account has been suspended. Contact support at xxxxxx@gmail.com");
-        }
-        //other errors
-        else {
-          showMessage(result);
-        }
+        //show the error message
+        showMessage(result);
       } else {
         if (mounted) {
           setState(() {

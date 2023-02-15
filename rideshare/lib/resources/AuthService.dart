@@ -9,6 +9,27 @@ class AuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  //check if name field has correct format
+  bool firstnameFormatCorrect(String firstName) {
+    if (firstName.trim().isNotEmpty &&
+        firstName.trim().length >= 2 &&
+        firstName.trim().length < 15) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool lastnameFormatCorrect(String lastName) {
+    if (lastName.trim().isNotEmpty &&
+        lastName.trim().length >= 2 &&
+        lastName.trim().length < 15) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Future<model.User> getUserDetails() async {
     User currentUser = _auth.currentUser!;
     DocumentSnapshot documentSnapshot =
@@ -20,11 +41,19 @@ class AuthService {
   Future<String> signUserUp({
     required String email,
     required String password,
+    required String confirmPassword,
     required String firstName,
     required String lastName,
   }) async {
-    String result = "Some error occurred, please try again later";
-    if (email.isNotEmpty && firstName.isNotEmpty && lastName.isNotEmpty) {
+    String result = "Some error occurred, please try again later.";
+    if (email.isNotEmpty &&
+        firstName.isNotEmpty &&
+        lastName.isNotEmpty &&
+        password.isNotEmpty &&
+        confirmPassword.isNotEmpty &&
+        firstnameFormatCorrect(firstName) &&
+        lastnameFormatCorrect(lastName) &&
+        password.trim() == confirmPassword.trim()) {
       try {
         UserCredential cred =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -47,10 +76,33 @@ class AuthService {
 
         result = "success";
       } on FirebaseAuthException catch (e) {
-        result = e.code;
+        if (e.code == 'weak-password') {
+          result = "Come on! You can come up with a better password!";
+        }
+        //invalid email
+        else if (e.code == 'invalid-email') {
+          result = "Hmmm, that email doesn't look right....";
+        }
+        //email already in use
+        else if (e.code == 'email-already-in-use') {
+          result = "You already signed up with that email. Go sign in!";
+        }
+        //bad network connection
+        else if (e.code == 'network-request-failed') {
+          result = "Can't connect to internet, please check your connection!";
+        }
       }
-    } else {
-      result = "Some fields are left empty, please try again";
+    } else if (password.trim() != confirmPassword.trim()) {
+      result = "The two passwords do not match";
+    } else if (email.trim().isEmpty ||
+        firstName.trim().isEmpty ||
+        lastName.trim().isEmpty ||
+        password.trim().isEmpty ||
+        confirmPassword.trim().isEmpty) {
+      result = "You still need to fill some more info!";
+    } else if (!firstnameFormatCorrect(firstName.trim()) ||
+        !lastnameFormatCorrect(lastName.trim())) {
+      result = "The name is a little too long (or too short), try again.";
     }
     return result;
   }
@@ -59,7 +111,7 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    String result = "Some error occurred, please try again later";
+    String result = "Some error occurred, please try again later.";
     if (email.isNotEmpty && password.isNotEmpty) {
       try {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -68,10 +120,28 @@ class AuthService {
         );
         result = "success";
       } on FirebaseAuthException catch (e) {
-        result = e.code;
+        //No user found
+        if (e.code == 'user-not-found') {
+          result = "Seems like you haven't signed up yet";
+        }
+        //Weak-Password
+        else if (e.code == 'wrong-password') {
+          result = "Wrong Password. Maybe try again?";
+        }
+        //invalid email
+        else if (e.code == 'invalid-email') {
+          result = "Hmmm, that email doesn't look right....";
+        }
+        //email already in use
+        else if (e.code == 'user-disabled') {
+          result =
+              "Your account has been suspended. Contact support at xxxxxx@gmail.com";
+        } else {
+          result = e.code;
+        }
       }
     } else {
-      result = "Some fields are left empty, please try again";
+      result = "Some fields are left empty, please try again.";
     }
     return result;
   }
@@ -82,26 +152,26 @@ class AuthService {
       required String bio,
       required String photoUrl}) async {
     String result = "Some error occurred, please try again later";
-    if (firstName.isNotEmpty && lastName.isNotEmpty) {
+    if (firstnameFormatCorrect(firstName) && lastnameFormatCorrect(lastName)) {
       try {
         User currentUser = _auth.currentUser!;
         DocumentSnapshot documentSnapshot =
             await _firestore.collection('users').doc(currentUser.uid).get();
         model.User user = model.User.fromSnap(documentSnapshot);
-        user.firstName = firstName;
-        user.lastName = lastName;
-        user.bio = bio;
+        user.firstName = firstName.trim();
+        user.lastName = lastName.trim();
+        user.bio = bio.trim();
         user.photoUrl = photoUrl;
 
         // adding user in our database
         await _firestore.collection("users").doc(user.uid).set(user.toJson());
 
         result = "success";
-      } on FirebaseAuthException catch (e) {
-        result = e.code;
+      } catch (e) {
+        result = e.toString();
       }
     } else {
-      result = "Some fields are left empty, please try again";
+      result = "Some fields are left empty, please try again.";
     }
     return result;
   }
@@ -109,13 +179,53 @@ class AuthService {
   Future<String> deleteUser() async {
     String result = "There has been some problems, try again later.";
     if (_auth.currentUser != null) {
-      String uid = _auth.currentUser!.uid;
-      await _firestore.collection('users').doc(_auth.currentUser!.uid).delete();
-      Reference ref =
-          FirebaseStorage.instance.ref().child("Profile Images").child(uid);
-      await ref.delete();
-      await _auth.currentUser!.delete();
-      result = "success";
+      try {
+        String uid = _auth.currentUser!.uid;
+        await _firestore
+            .collection('users')
+            .doc(_auth.currentUser!.uid)
+            .delete();
+        Reference ref =
+            FirebaseStorage.instance.ref().child("Profile Images").child(uid);
+        await ref.delete();
+        await _auth.currentUser!.delete();
+        result = "success";
+      } catch (e) {
+        result = e.toString();
+      }
+    }
+    return result;
+  }
+
+  Future<String> updatePassword({
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    String result = "There has been some problems, try again later.";
+    if (_auth.currentUser != null &&
+        newPassword.trim() == confirmPassword.trim()) {
+      try {
+        await _auth.currentUser!.updatePassword(newPassword);
+        result = "success";
+      }
+      //server side problems
+      on FirebaseAuthException catch (e) {
+        //weak passwrod
+        if (e.code == "weak-password") {
+          result = "Come on! You can come up with a better password!";
+        }
+        //need to log in within a certain period
+        else if (e.code == "requires-recent-login") {
+          result =
+              "It's been too long since your last login, try logging in again and then change your password.";
+        }
+        //return error code otherwise
+        else {
+          result = e.toString();
+        }
+      }
+    } else if (newPassword.trim() != confirmPassword.trim()) {
+      result = "The two passwords do not match.";
     }
     return result;
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rideshare/resources/AuthService.dart';
 import 'package:rideshare/screens/AccountDeleteScreen.dart';
+import 'package:rideshare/screens/ChangePasswordScreen.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:rideshare/components/themeProvider.dart';
 
@@ -61,6 +62,20 @@ class SettingsPage extends StatelessWidget {
               ),
               tiles: <SettingsTile>[
                 SettingsTile.navigation(
+                  leading: const Icon(Icons.key),
+                  title: Text(
+                    'Change Password',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  onPressed: (context) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ChangePasswordPage(),
+                      ),
+                    );
+                  },
+                ),
+                SettingsTile.navigation(
                   leading: const Icon(Icons.delete),
                   title: Text(
                     'Delete Account',
@@ -73,7 +88,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                     );
                   },
-                )
+                ),
               ])
         ],
       ),
