@@ -161,7 +161,6 @@ class AuthService {
         User currentUser = _auth.currentUser!;
         DocumentSnapshot documentSnapshot =
             await _firestore.collection('users').doc(currentUser.uid).get();
-        print("Got snapshot");
         model.User user = model.User.fromSnap(documentSnapshot);
         user.firstName = firstName.trim();
         user.lastName = lastName.trim();
@@ -182,7 +181,6 @@ class AuthService {
     } else {
       result = "Some fields are left empty, please try again.";
     }
-    print("Done");
     return result;
   }
 

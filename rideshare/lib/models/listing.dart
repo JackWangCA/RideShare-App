@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:rideshare/models/user.dart' as model;
 
 class Listing {
