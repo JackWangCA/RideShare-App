@@ -112,7 +112,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       isLoading = true;
     });
     String result = "There has been some issues, please try again later.";
-    print("Initialized");
     if (image != null) {
       Reference ref =
           FirebaseStorage.instance.ref().child("Profile Images").child(uid);
@@ -120,7 +119,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       await ref.putFile(File(image!.path));
       photoUrl = await ref.getDownloadURL();
     }
-    print("Imaged Uploaded");
     if (firstnameFormatCorrect() && lastnameFormatCorrect()) {
       result = await AuthService().updateUserDetails(
         firstName: firstNameController.text.trim(),
@@ -128,7 +126,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         bio: bioController.text.trim(),
         photoUrl: photoUrl,
       );
-      print("Details updated");
     } else {
       result = "Format is incorrect, try again.";
     }

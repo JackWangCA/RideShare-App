@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
@@ -10,7 +11,29 @@ class CreateListingPage extends StatefulWidget {
 }
 
 class _CreateListingPageState extends State<CreateListingPage> {
-  final DateTime time = DateTime.now();
+  final descriptionController = TextEditingController();
+  DateTime selectedDateTime = DateTime.now().toUtc();
+  TimeOfDay selectedTime = TimeOfDay.now();
+
+  void showIosDatePicker(BuildContext context) {
+    showCupertinoModalPopup(
+        context: context,
+        builder: (_) => Container(
+              height: 180.0,
+              child: CupertinoDatePicker(
+                initialDateTime: selectedDateTime.toLocal(),
+                minimumDate: DateTime.now()
+                    .toLocal()
+                    .subtract(const Duration(seconds: 1)),
+                onDateTimeChanged: (val) {
+                  setState(() {
+                    selectedDateTime = val.toUtc();
+                  });
+                },
+              ),
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +46,18 @@ class _CreateListingPageState extends State<CreateListingPage> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            child: Column(),
+            child: Column(
+              children: <Widget>[
+                ElevatedButton(
+                  onPressed: () {
+                    showIosDatePicker(context);
+                  },
+                  child: const Icon(Icons.date_range),
+                ),
+                Text(selectedDateTime.toString()),
+                Text(selectedDateTime.toLocal().toString()),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,22 +1,23 @@
-import 'dart:html';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rideshare/models/user.dart' as model;
 
 class Listing {
-  model.User user;
+  String uid;
   String listingType;
-  DateTime time = DateTime.utc(1989, 11, 9);
-  int price;
-  String departure;
-  String destination;
+  DateTime departTime;
+  DateTime publishedTime;
+  double price;
+  GeoPoint startLocation;
+  GeoPoint destination;
   String description;
 
   Listing({
-    required this.user,
+    required this.uid,
     required this.listingType,
-    required this.time,
+    required this.departTime,
+    required this.publishedTime,
     required this.price,
-    required this.departure,
+    required this.startLocation,
     required this.destination,
     required this.description,
   });
