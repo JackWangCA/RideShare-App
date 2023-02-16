@@ -38,9 +38,12 @@ class _SignUpPageState extends State<SignUpPage> {
   //Sign User In
   void signUp() async {
     //do a loading circle
-    setState(() {
-      isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = true;
+      });
+    }
+
     //try creating the user
 
     String result = await AuthService().signUserUp(
@@ -50,9 +53,12 @@ class _SignUpPageState extends State<SignUpPage> {
       firstName: firstNameController.text.trim(),
       lastName: lastNameController.text.trim(),
     );
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+
     if (result != "success") {
       showMessage(result);
     }

@@ -24,38 +24,51 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   @override
   void initState() {
     super.initState();
+
     isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
-    if (!isEmailVerified) {
-      sendVerificationEmail();
+    if (mounted) {
+      if (!isEmailVerified) {
+        sendVerificationEmail();
+        timer = Timer.periodic(
+          const Duration(seconds: 3),
+          (_) => checkEmailVerified(),
+        );
+      }
     }
-    timer = Timer.periodic(
-      const Duration(seconds: 3),
-      (_) => checkEmailVerified(),
-    );
   }
 
   Future sendVerificationEmail() async {
     try {
       final user = FirebaseAuth.instance.currentUser!;
       await user.sendEmailVerification();
-      setState(() {
-        canResendEmail = false;
-      });
+      if (mounted) {
+        setState(() {
+          canResendEmail = false;
+        });
+      }
+
       await Future.delayed(const Duration(seconds: 10));
-      setState(() {
-        canResendEmail = true;
-      });
+      if (mounted) {
+        setState(() {
+          canResendEmail = true;
+        });
+      }
     } catch (e) {
       if (dialogOpen) {
         Navigator.pop(context);
-        setState(() {
-          dialogOpen = false;
-        });
+        if (mounted) {
+          setState(() {
+            dialogOpen = false;
+          });
+        }
       }
       if (e.toString() ==
           "[firebase_auth/too-many-requests] We have blocked all requests from this device due to unusual activity. Try again later.") {
         showMessage(
             "You can't request more verification code at the moment, try again later");
+      } else if (e.toString() ==
+          "[firebase_auth/network-request-failed] Network error (such as timeout, interrupted connection or unreachable host) has occurred.") {
+        showMessage("No internet connection, please try again later.");
       } else {
         showMessage(e.toString());
       }
@@ -68,7 +81,10 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   }
 
   Future checkEmailVerified() async {
-    await FirebaseAuth.instance.currentUser!.reload();
+    try {
+      await FirebaseAuth.instance.currentUser!.reload();
+    } catch (e) {}
+
     setState(() {
       isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
     });
@@ -84,9 +100,12 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   }
 
   void showMessage(String title) {
-    setState(() {
-      dialogOpen = true;
-    });
+    if (mounted) {
+      setState(() {
+        dialogOpen = true;
+      });
+    }
+
     showDialog(
         context: context,
         builder: (context) {
@@ -112,11 +131,25 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
               title: const Text("Verify Email"),
               actions: [
                 IconButton(
-                    onPressed: () async {
-                      await AuthService().deleteUser();
+                  onPressed: () async {
+                    try {
+                      await FirebaseAuth.instance.currentUser!.reload();
+                    } catch (e) {
+                      if (e.toString() ==
+                          "[firebase_auth/network-request-failed] Network error (such as timeout, interrupted connection or unreachable host) has occurred.") {
+                        showMessage(
+                            "No internet connection, please try again later.");
+                      }
+                    }
+                    String result = await AuthService().deleteUser();
+                    if (result == "success") {
                       AuthService().signOut();
-                    },
-                    icon: const Icon(Icons.logout))
+                    } else {
+                      showMessage(result);
+                    }
+                  },
+                  icon: const Icon(Icons.logout),
+                )
               ],
             ),
             body: Padding(

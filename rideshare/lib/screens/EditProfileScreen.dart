@@ -112,12 +112,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
       isLoading = true;
     });
     String result = "There has been some issues, please try again later.";
+    print("Initialized");
     if (image != null) {
       Reference ref =
           FirebaseStorage.instance.ref().child("Profile Images").child(uid);
+      print("Creating Ref");
       await ref.putFile(File(image!.path));
       photoUrl = await ref.getDownloadURL();
     }
+    print("Imaged Uploaded");
     if (firstnameFormatCorrect() && lastnameFormatCorrect()) {
       result = await AuthService().updateUserDetails(
         firstName: firstNameController.text.trim(),
@@ -125,6 +128,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         bio: bioController.text.trim(),
         photoUrl: photoUrl,
       );
+      print("Details updated");
     } else {
       result = "Format is incorrect, try again.";
     }
@@ -237,11 +241,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         MyButton(
                           text: "Save Changes",
                           onTap: () async {
-                            String result = await saveChanges();
-                            if (result != "success") {
-                              showMessage(result);
-                            } else {
-                              Navigator.pop(context);
+                            try {
+                              await FirebaseAuth.instance.currentUser!.reload();
+                              String result = await saveChanges();
+                              if (result != "success") {
+                                showMessage(result);
+                              } else {
+                                Navigator.pop(context);
+                              }
+                            } catch (e) {
+                              if (e.toString() ==
+                                  "[firebase_auth/network-request-failed] Network error (such as timeout, interrupted connection or unreachable host) has occurred.") {
+                                showMessage(
+                                    "No internet connection, please try again later.");
+                              }
                             }
                           },
                         ),

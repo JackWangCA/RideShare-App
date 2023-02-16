@@ -78,6 +78,8 @@ class AuthService {
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
           result = "Come on! You can come up with a better password!";
+        } else if (e.code == "network-request-failed") {
+          result = "No internet connection. Please try again later.";
         }
         //invalid email
         else if (e.code == 'invalid-email') {
@@ -112,7 +114,7 @@ class AuthService {
     required String password,
   }) async {
     String result = "Some error occurred, please try again later.";
-    if (email.isNotEmpty && password.isNotEmpty) {
+    if (email.trim().isNotEmpty && password.trim().isNotEmpty) {
       try {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: email.trim(),
@@ -123,6 +125,8 @@ class AuthService {
         //No user found
         if (e.code == 'user-not-found') {
           result = "Seems like you haven't signed up yet";
+        } else if (e.code == "network-request-failed") {
+          result = "No internet connection. Please try again later.";
         }
         //Weak-Password
         else if (e.code == 'wrong-password') {
@@ -157,6 +161,7 @@ class AuthService {
         User currentUser = _auth.currentUser!;
         DocumentSnapshot documentSnapshot =
             await _firestore.collection('users').doc(currentUser.uid).get();
+        print("Got snapshot");
         model.User user = model.User.fromSnap(documentSnapshot);
         user.firstName = firstName.trim();
         user.lastName = lastName.trim();
@@ -164,7 +169,11 @@ class AuthService {
         user.photoUrl = photoUrl;
 
         // adding user in our database
-        await _firestore.collection("users").doc(user.uid).set(user.toJson());
+        try {
+          _firestore.collection("users").doc(user.uid).set(user.toJson());
+        } catch (e) {
+          print(e.toString());
+        }
 
         result = "success";
       } catch (e) {
@@ -173,6 +182,7 @@ class AuthService {
     } else {
       result = "Some fields are left empty, please try again.";
     }
+    print("Done");
     return result;
   }
 
@@ -181,13 +191,21 @@ class AuthService {
     if (_auth.currentUser != null) {
       try {
         String uid = _auth.currentUser!.uid;
+        DocumentSnapshot documentSnapshot = await _firestore
+            .collection('users')
+            .doc(_auth.currentUser!.uid)
+            .get();
+        model.User user = model.User.fromSnap(documentSnapshot);
         await _firestore
             .collection('users')
             .doc(_auth.currentUser!.uid)
             .delete();
-        Reference ref =
-            FirebaseStorage.instance.ref().child("Profile Images").child(uid);
-        await ref.delete();
+
+        if (user.photoUrl.isNotEmpty) {
+          Reference ref =
+              FirebaseStorage.instance.ref().child("Profile Images").child(uid);
+          await ref.delete();
+        }
         await _auth.currentUser!.delete();
         result = "success";
       } catch (e) {

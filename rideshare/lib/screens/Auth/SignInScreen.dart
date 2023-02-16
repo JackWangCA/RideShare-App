@@ -31,39 +31,31 @@ class _SignInPageState extends State<SignInPage> {
       });
     }
     //try signinig in
-    // try {
 
-    if (emailController.text.trim().isNotEmpty &&
-        passwordController.text.trim().isNotEmpty) {
-      String result = await AuthService().signUserIn(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      if (result != "success") {
-        //pop the circle
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-          });
-        }
-        //show the error message
-        showMessage(result);
-      } else {
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-          });
-        }
-      }
-    } else {
-      //pop the circle
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-      showMessage("You haven't even entered anything yet!  :(");
+    String result = await AuthService().signUserIn(
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+    );
+    setState(() {
+      isLoading = false;
+    });
+    if (result != "success") {
+      // //pop the circle
+      // if (mounted) {
+      //   setState(() {
+      //     isLoading = false;
+      //   });
+      // }
+      //show the error message
+      showMessage(result);
     }
+    // } else {
+    //   if (mounted) {
+    //     setState(() {
+    //       isLoading = false;
+    //     });
+    //   }
+    // }
   }
 
   void showMessage(String title) {
