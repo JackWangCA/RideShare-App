@@ -115,7 +115,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (image != null) {
       Reference ref =
           FirebaseStorage.instance.ref().child("Profile Images").child(uid);
-      print("Creating Ref");
       await ref.putFile(File(image!.path));
       photoUrl = await ref.getDownloadURL();
     }

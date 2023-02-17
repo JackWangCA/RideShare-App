@@ -4,8 +4,8 @@ import 'package:rideshare/models/user.dart' as model;
 class Listing {
   String uid;
   String listingType;
-  DateTime departTime;
-  DateTime publishedTime;
+  DateTime departTime; //in utc
+  DateTime publishedTime; //in utc
   double price;
   GeoPoint startLocation;
   GeoPoint destination;
@@ -21,4 +21,15 @@ class Listing {
     required this.destination,
     required this.description,
   });
+
+  Map<String, dynamic> toJson() => {
+        "uid": uid,
+        "listingType": listingType,
+        "departTime": departTime,
+        "publishedTime": publishedTime,
+        "price": price,
+        "startLocation": startLocation,
+        "destination": destination,
+        "listings": description,
+      };
 }
