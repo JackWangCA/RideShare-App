@@ -50,7 +50,7 @@ class _CreateListingPageState extends State<CreateListingPage> {
         (serviceEnabled && permission == LocationPermission.whileInUse)) {
       Position userPosition = await Geolocator.getCurrentPosition();
       setState(() {
-        userLocation = GeoPoint(userPosition.latitude, userPosition.latitude);
+        userLocation = GeoPoint(userPosition.latitude, userPosition.longitude);
       });
 
       result = "success";
