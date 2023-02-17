@@ -97,8 +97,8 @@ class _CreateListingPageState extends State<CreateListingPage> {
                       .subtract(const Duration(seconds: 1)),
                   onDateTimeChanged: (val) {
                     setState(() {
-                      if (val.isBefore(DateTime.now().toUtc())) {
-                        val = DateTime.now().toUtc();
+                      if (val.isBefore(DateTime.now())) {
+                        val = DateTime.now();
                       }
                       selectedDateTime = val.toUtc();
                     });
