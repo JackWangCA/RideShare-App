@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:rideshare/models/LocationListTile.dart';
+import 'package:rideshare/resources/AutocompletePrediction.dart';
+import 'package:rideshare/resources/NetworkService.dart';
+
+import '../resources/PlaceAutoCompleteResponse.dart';
 
 class CreateListingPage extends StatefulWidget {
   const CreateListingPage({super.key});
@@ -16,8 +21,13 @@ class _CreateListingPageState extends State<CreateListingPage> {
   GeoPoint? userLocation;
   GeoPoint? startLocation;
   GeoPoint? destination;
+  bool startLocationPredictionOpen = true;
   final descriptionController = TextEditingController();
+  final startLocationTextController = TextEditingController();
   DateTime selectedDateTime = DateTime.now().toUtc();
+  String apiKey = "AIzaSyAoY0zvH1IO2Q9dB7WbHti7_F_l7fqc7tI";
+  String destinationText = "";
+  List<AutoCompletePrediction> placePredictions = [];
 
   @override
   void initState() {
@@ -60,6 +70,35 @@ class _CreateListingPageState extends State<CreateListingPage> {
     }
   }
 
+  void placeAutoComplete(String query) async {
+    if (query.isNotEmpty) {
+      Uri uri = Uri.https(
+        "maps.googleapis.com",
+        "maps/api/place/autocomplete/json",
+        {
+          "input": query,
+          "key": apiKey,
+        },
+      );
+      String? response = await NetworkService.fetchUrl(uri);
+
+      if (response != null) {
+        PlaceAutocompleteResponse result =
+            PlaceAutocompleteResponse.pareseAutoCompleteResult(response);
+
+        if (result.predictions != null) {
+          setState(() {
+            placePredictions = result.predictions!;
+          });
+        }
+      }
+    } else {
+      setState(() {
+        placePredictions = [];
+      });
+    }
+  }
+
   DateTime latestTime() {
     if (selectedDateTime.toLocal().isBefore(DateTime.now())) {
       selectedDateTime = DateTime.now();
@@ -76,8 +115,9 @@ class _CreateListingPageState extends State<CreateListingPage> {
           style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SafeArea(
           child: Column(
             children: <Widget>[
               const SizedBox(
@@ -122,6 +162,53 @@ class _CreateListingPageState extends State<CreateListingPage> {
               Text(userLocation == null
                   ? "No data"
                   : userLocation!.longitude.toString()),
+              Form(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: TextFormField(
+                    controller: startLocationTextController,
+                    onChanged: (value) {
+                      placeAutoComplete(value);
+                      setState(() {
+                        startLocationPredictionOpen = true;
+                      });
+                    },
+                    textInputAction: TextInputAction.search,
+                    decoration: const InputDecoration(
+                      hintText: "Search for your starting location.",
+                      prefixIcon: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 0.0),
+                        child: Icon(Icons.search),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Divider(
+                height: 4,
+                thickness: 4,
+                color: Theme.of(context).hintColor,
+              ),
+              startLocationPredictionOpen
+                  ? Expanded(
+                      child: ListView.builder(
+                        itemCount: placePredictions.length,
+                        itemBuilder: (context, index) => LocationListTile(
+                          location:
+                              placePredictions.elementAt(index).description!,
+                          onTap: () {
+                            setState(() {
+                              startLocationTextController.text =
+                                  placePredictions
+                                      .elementAt(index)
+                                      .description!;
+                              startLocationPredictionOpen = false;
+                            });
+                          },
+                        ),
+                      ),
+                    )
+                  : Divider(),
             ],
           ),
         ),
