@@ -12,14 +12,14 @@ class Listing {
   String description;
 
   Listing({
-    required this.uid,
-    required this.listingType,
+    this.uid = "",
+    this.listingType = "Request",
     required this.departTime,
     required this.publishedTime,
-    required this.price,
-    required this.startLocation,
-    required this.destination,
-    required this.description,
+    this.price = 0,
+    this.startLocation = const GeoPoint(0, 0),
+    this.destination = const GeoPoint(0, 0),
+    this.description = "",
   });
 
   Map<String, dynamic> toJson() => {

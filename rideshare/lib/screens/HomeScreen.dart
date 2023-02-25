@@ -9,7 +9,7 @@ import 'package:rideshare/screens/ProfileScreen.dart';
 import 'package:rideshare/screens/SettingScreen.dart';
 import 'package:rideshare/models/user.dart' as model;
 
-import 'CreateListingScreen.dart';
+import 'CreateListingScreens/CreateListingScreen.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});

@@ -152,26 +152,29 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                 )
               ],
             ),
-            body: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "An email has been sent to your inbox, please click on the link to verify",
-                    style: Theme.of(context).textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 25),
-                  MyButton(
-                    text: "Resend Email",
-                    onTap: () {
-                      canResendEmail
-                          ? reSendVerificationEmail()
-                          : showMessage("You have already resent a email!");
-                    },
-                  ),
-                ],
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Spacer(),
+                    Text(
+                      "An email has been sent to your inbox, please click on the link to verify",
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const Spacer(),
+                    MyButton(
+                      text: "Resend Email",
+                      onTap: () {
+                        canResendEmail
+                            ? reSendVerificationEmail()
+                            : showMessage("You have already resent a email!");
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           );

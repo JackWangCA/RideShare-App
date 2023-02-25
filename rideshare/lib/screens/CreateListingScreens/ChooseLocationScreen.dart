@@ -1,40 +1,39 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:rideshare/models/LocationListTile.dart';
-import 'package:rideshare/resources/AutocompletePrediction.dart';
-import 'package:rideshare/resources/NetworkService.dart';
+import 'package:rideshare/models/listing.dart';
 
-import '../resources/PlaceAutoCompleteResponse.dart';
+import '../../models/LocationListTile.dart';
+import '../../resources/AutocompletePrediction.dart';
+import '../../resources/NetworkService.dart';
+import '../../resources/PlaceAutoCompleteResponse.dart';
 
-class CreateListingPage extends StatefulWidget {
-  const CreateListingPage({super.key});
+class ChooseLocationPage extends StatefulWidget {
+  final Listing listing;
+  const ChooseLocationPage({super.key, required this.listing});
 
   @override
-  State<CreateListingPage> createState() => _CreateListingPageState();
+  State<ChooseLocationPage> createState() => _ChooseLocationPageState();
 }
 
-class _CreateListingPageState extends State<CreateListingPage> {
-  GeoPoint? userLocation;
-  GeoPoint? startLocation;
-  GeoPoint? destination;
-  bool startLocationPredictionOpen = true;
-  final descriptionController = TextEditingController();
-  final startLocationTextController = TextEditingController();
-  DateTime selectedDateTime = DateTime.now().toUtc();
-  String apiKey = "AIzaSyAoY0zvH1IO2Q9dB7WbHti7_F_l7fqc7tI";
-  String destinationText = "";
-  List<AutoCompletePrediction> placePredictions = [];
-
+class _ChooseLocationPageState extends State<ChooseLocationPage> {
   @override
   void initState() {
     super.initState();
-    selectedDateTime = DateTime.now().toUtc();
     determineLocation();
   }
+
+  GeoPoint? userLocation;
+  GeoPoint? startLocation;
+  GeoPoint? destination;
+  final startLocationTextController = TextEditingController();
+  final destinationTextController = TextEditingController();
+  String apiKey = "AIzaSyAoY0zvH1IO2Q9dB7WbHti7_F_l7fqc7tI";
+  String destinationText = "";
+  List<AutoCompletePrediction> placePredictions = [];
+  bool startLocationPredictionOpen = true;
 
   void determineLocation() async {
     String result = "Some error occurred, please try again later.";
@@ -99,19 +98,12 @@ class _CreateListingPageState extends State<CreateListingPage> {
     }
   }
 
-  DateTime latestTime() {
-    if (selectedDateTime.toLocal().isBefore(DateTime.now())) {
-      selectedDateTime = DateTime.now();
-    }
-    return selectedDateTime;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Plan Your Ride',
+          'Pick the places',
           style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
@@ -120,63 +112,38 @@ class _CreateListingPageState extends State<CreateListingPage> {
         child: SafeArea(
           child: Column(
             children: <Widget>[
-              const SizedBox(
-                height: 20.0,
-              ),
-              Text(
-                "Set a time for your ride",
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              SizedBox(
-                height: 180,
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.dateAndTime,
-                  initialDateTime: latestTime(),
-                  minimumDate: DateTime.now()
-                      .toLocal()
-                      .subtract(const Duration(seconds: 1)),
-                  onDateTimeChanged: (val) {
-                    setState(() {
-                      if (val.isBefore(DateTime.now())) {
-                        val = DateTime.now();
-                      }
-                      selectedDateTime = val.toUtc();
-                    });
-                  },
-                ),
-              ),
-              //Testing Purposes
-              const SizedBox(
-                height: 20.0,
-              ),
-              Text("Local Time: ${selectedDateTime.toLocal()}"),
-              const SizedBox(
-                height: 20.0,
-              ),
-              Text(userLocation == null
-                  ? "No data"
-                  : userLocation!.latitude.toString()),
-              const SizedBox(
-                height: 20.0,
-              ),
-              Text(userLocation == null
-                  ? "No data"
-                  : userLocation!.longitude.toString()),
               Form(
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: TextFormField(
+                  child: TextField(
+                    autocorrect: true,
+                    autofocus: false,
                     controller: startLocationTextController,
                     onChanged: (value) {
+                      if (value.isEmpty) {
+                        setState(() {
+                          startLocationPredictionOpen = false;
+                        });
+                      }
                       placeAutoComplete(value);
                       setState(() {
                         startLocationPredictionOpen = true;
                       });
                     },
                     textInputAction: TextInputAction.search,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                        borderSide: const BorderSide(
+                          width: 0,
+                          style: BorderStyle.none,
+                        ),
+                      ),
+                      filled: true,
+                      fillColor: Theme.of(context).scaffoldBackgroundColor,
+                      focusColor: Theme.of(context).focusColor,
                       hintText: "Search for your starting location.",
-                      prefixIcon: Padding(
+                      prefixIcon: const Padding(
                         padding: EdgeInsets.symmetric(vertical: 0.0),
                         child: Icon(Icons.search),
                       ),
@@ -184,13 +151,9 @@ class _CreateListingPageState extends State<CreateListingPage> {
                   ),
                 ),
               ),
-              Divider(
-                height: 4,
-                thickness: 4,
-                color: Theme.of(context).hintColor,
-              ),
               startLocationPredictionOpen
-                  ? Expanded(
+                  ? Flexible(
+                      fit: FlexFit.loose,
                       child: ListView.builder(
                         itemCount: placePredictions.length,
                         itemBuilder: (context, index) => LocationListTile(
@@ -208,7 +171,10 @@ class _CreateListingPageState extends State<CreateListingPage> {
                         ),
                       ),
                     )
-                  : Divider(),
+                  : const SizedBox(
+                      height: 1,
+                    ),
+              Text(widget.listing.departTime.toLocal().toString()),
             ],
           ),
         ),
