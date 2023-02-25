@@ -62,6 +62,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   'Dark Mode',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
+                description: const Text(
+                    "Dark Mode switch only works when Follow System Theme is off."),
               ),
             ],
           ),

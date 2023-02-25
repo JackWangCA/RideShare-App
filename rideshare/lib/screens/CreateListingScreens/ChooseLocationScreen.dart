@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:rideshare/components/locationPredictions.dart';
 import 'package:rideshare/components/myLocationTextField.dart';
 import 'package:rideshare/models/listing.dart';
 
@@ -35,6 +38,8 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
   String destinationText = "";
   List<AutoCompletePrediction> placePredictions = [];
   bool startLocationPredictionOpen = false;
+
+  Timer? debounce;
 
   void determineLocation() async {
     String result = "Some error occurred, please try again later.";
@@ -126,12 +131,23 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                           setState(() {
                             startLocationPredictionOpen = false;
                           });
-                        } else {
-                          placeAutoComplete(value);
-                          setState(() {
-                            startLocationPredictionOpen = true;
-                          });
                         }
+                        if (debounce?.isActive ?? false) {
+                          debounce!.cancel();
+                        }
+                        debounce =
+                            Timer(const Duration(milliseconds: 1000), () {
+                          if (value.isEmpty) {
+                            setState(() {
+                              startLocationPredictionOpen = false;
+                            });
+                          } else {
+                            placeAutoComplete(value);
+                            setState(() {
+                              startLocationPredictionOpen = true;
+                            });
+                          }
+                        });
                       }),
                 ),
               ),
