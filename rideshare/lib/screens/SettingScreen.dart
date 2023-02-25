@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rideshare/resources/AuthService.dart';
@@ -6,8 +7,17 @@ import 'package:rideshare/screens/ChangePasswordScreen.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:rideshare/components/themeProvider.dart';
 
-class SettingsPage extends StatelessWidget {
+import 'Auth/VerifyEmailScreen.dart';
+
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  final authUser = FirebaseAuth.instance.currentUser!;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +85,21 @@ class SettingsPage extends StatelessWidget {
                     );
                   },
                 ),
+                if (!authUser.emailVerified)
+                  SettingsTile.navigation(
+                    leading: const Icon(Icons.email),
+                    title: Text(
+                      'Verify Email',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    onPressed: (context) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => VerifyEmailPage(),
+                        ),
+                      );
+                    },
+                  ),
                 SettingsTile.navigation(
                   leading: const Icon(Icons.delete),
                   title: Text(

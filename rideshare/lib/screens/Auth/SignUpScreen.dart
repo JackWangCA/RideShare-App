@@ -91,177 +91,178 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoading
-        ? const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-            ),
-          )
-        : Scaffold(
-            body: SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 50),
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 50),
 
-                      //logo
-                      Theme.of(context).brightness == Brightness.light
-                          ? Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(60, 10, 60, 40),
-                              child: Image.asset(
-                                  'lib/images/logo/getaway_black.png'),
-                            )
-                          : Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(60, 10, 60, 40),
-                              child: Image.asset(
-                                  'lib/images/logo/getaway_white.png'),
-                            ),
-
-                      //Welcome Text
-                      Text(
-                        'Nice to meet you!',
-                        style: Theme.of(context).textTheme.headlineMedium,
+                //logo
+                Theme.of(context).brightness == Brightness.light
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(60, 10, 60, 40),
+                        child: Image.asset('lib/images/logo/getaway_black.png'),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.fromLTRB(60, 10, 60, 40),
+                        child: Image.asset('lib/images/logo/getaway_white.png'),
                       ),
 
-                      //First Name Field
-                      const SizedBox(height: 25),
-                      MyTextField(
-                        controller: firstNameController,
-                        hintText: 'First Name',
-                        obscureText: false,
-                        inputType: TextInputType.name,
-                      ),
+                //Welcome Text
+                Text(
+                  'Nice to meet you!',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
 
-                      //Last Name Field
-                      const SizedBox(height: 10),
-                      MyTextField(
-                        controller: lastNameController,
-                        hintText: 'Last Name',
-                        obscureText: false,
-                        inputType: TextInputType.name,
-                      ),
+                //First Name Field
+                const SizedBox(height: 25),
+                MyTextField(
+                  controller: firstNameController,
+                  hintText: 'First Name',
+                  obscureText: false,
+                  inputType: TextInputType.name,
+                ),
 
-                      //Email Field
-                      const SizedBox(height: 10),
-                      MyTextField(
-                        controller: emailController,
-                        hintText: 'Email',
-                        obscureText: false,
-                        inputType: TextInputType.emailAddress,
-                      ),
+                //Last Name Field
+                const SizedBox(height: 10),
+                MyTextField(
+                  controller: lastNameController,
+                  hintText: 'Last Name',
+                  obscureText: false,
+                  inputType: TextInputType.name,
+                ),
 
-                      //Password Field
-                      const SizedBox(height: 10),
-                      MyTextField(
-                        controller: passwordController,
-                        hintText: 'Password',
-                        obscureText: true,
-                        inputType: TextInputType.text,
-                      ),
-                      const SizedBox(height: 10),
+                //Email Field
+                const SizedBox(height: 10),
+                MyTextField(
+                  controller: emailController,
+                  hintText: 'Email',
+                  obscureText: false,
+                  inputType: TextInputType.emailAddress,
+                ),
 
-                      //Confirm Password Field
-                      MyTextField(
-                        controller: confirmPasswordController,
-                        hintText: 'Confirm Password',
-                        obscureText: true,
-                        inputType: TextInputType.text,
-                      ),
-                      const SizedBox(height: 10),
+                //Password Field
+                const SizedBox(height: 10),
+                MyTextField(
+                  controller: passwordController,
+                  hintText: 'Password',
+                  obscureText: true,
+                  inputType: TextInputType.text,
+                ),
+                const SizedBox(height: 10),
 
-                      //Sign Up Button
-                      const SizedBox(height: 20),
-                      MyButton(
-                        text: "Sign Up",
-                        onTap: () {
-                          signUp();
-                        },
-                      ),
-                      const SizedBox(height: 45),
-                      //Divider
+                //Confirm Password Field
+                MyTextField(
+                  controller: confirmPasswordController,
+                  hintText: 'Confirm Password',
+                  obscureText: true,
+                  inputType: TextInputType.text,
+                ),
+                const SizedBox(height: 10),
 
-                      //Uncomment after ready for google and apple auth
-
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                      //   child: Row(
-                      //     children: [
-                      //       Expanded(
-                      //         child: Divider(
-                      //           thickness: 0.5,
-                      //           color: Theme.of(context).dividerColor,
-                      //         ),
-                      //       ),
-                      //       Text(
-                      //         'Or Continue With',
-                      //         style: Theme.of(context)
-                      //             .textTheme
-                      //             .bodyMedium!
-                      //             .copyWith(color: Theme.of(context).dividerColor),
-                      //       ),
-                      //       Expanded(
-                      //         child: Divider(
-                      //           thickness: 0.5,
-                      //           color: Theme.of(context).dividerColor,
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 45),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.center,
-                      //   children: const [
-                      //     SquareTile(imagePath: 'lib/images/google.png'),
-                      //     SizedBox(
-                      //       width: 30,
-                      //     ),
-                      //     SquareTile(imagePath: 'lib/images/apple.png'),
-                      //   ],
-                      // ),
-                      // const SizedBox(height: 45),
-
-                      //To go to the sign in screen
-                      GestureDetector(
-                        onTap: () {
-                          widget.onTap!();
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(15.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Already have an account?',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(color: Colors.grey),
-                              ),
-                              const SizedBox(
-                                width: 4,
-                              ),
-                              Text(
-                                'Sign in here',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(
-                                        color: Theme.of(context).buttonColor),
-                              ),
-                            ],
-                          ),
+                //Sign Up Button
+                const SizedBox(height: 20),
+                MyButton(
+                  child: isLoading
+                      ? const CircularProgressIndicator(
+                          color: Colors.grey,
+                        )
+                      : Text(
+                          "Sign Up",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(
+                                  color: Theme.of(context).canvasColor,
+                                  fontSize: 15.0),
                         ),
-                      ),
-                    ],
+                  onTap: () {
+                    signUp();
+                  },
+                ),
+                const SizedBox(height: 45),
+                //Divider
+
+                //Uncomment after ready for google and apple auth
+
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                //   child: Row(
+                //     children: [
+                //       Expanded(
+                //         child: Divider(
+                //           thickness: 0.5,
+                //           color: Theme.of(context).dividerColor,
+                //         ),
+                //       ),
+                //       Text(
+                //         'Or Continue With',
+                //         style: Theme.of(context)
+                //             .textTheme
+                //             .bodyMedium!
+                //             .copyWith(color: Theme.of(context).dividerColor),
+                //       ),
+                //       Expanded(
+                //         child: Divider(
+                //           thickness: 0.5,
+                //           color: Theme.of(context).dividerColor,
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // const SizedBox(height: 45),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: const [
+                //     SquareTile(imagePath: 'lib/images/google.png'),
+                //     SizedBox(
+                //       width: 30,
+                //     ),
+                //     SquareTile(imagePath: 'lib/images/apple.png'),
+                //   ],
+                // ),
+                // const SizedBox(height: 45),
+
+                //To go to the sign in screen
+                GestureDetector(
+                  onTap: () {
+                    widget.onTap!();
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(15.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Already have an account?',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(color: Colors.grey),
+                        ),
+                        const SizedBox(
+                          width: 4,
+                        ),
+                        Text(
+                          'Sign in here',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(color: Theme.of(context).buttonColor),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          );
+          ),
+        ),
+      ),
+    );
   }
 }

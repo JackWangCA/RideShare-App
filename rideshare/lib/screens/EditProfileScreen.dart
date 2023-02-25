@@ -154,111 +154,112 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoading
-        ? const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-            ),
-          )
-        : Scaffold(
-            appBar: AppBar(
-              title: Text(
-                "Edit Profile",
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-            body: SafeArea(
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Column(
-                    children: [
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () async {
-                          image = await imagePicker.pickImage(
-                            source: ImageSource.gallery,
-                            maxHeight: 512,
-                            maxWidth: 512,
-                            imageQuality: 75,
-                          );
-                          setState(() {});
-                        },
-                        child: SizedBox(
-                          width: 120.0,
-                          height: 120.0,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            child: image != null
-                                ? Image.file(
-                                    File(image!.path),
-                                    fit: BoxFit.cover,
-                                  )
-                                : hasPhoto
-                                    ? Image.network(
-                                        photoUrl,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Image.asset(
-                                        'lib/images/default_photo.jpeg'),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      const SizedBox(height: 25),
-                      //First Name Field
-                      MyTextField(
-                        controller: firstNameController,
-                        hintText: 'First Name',
-                        obscureText: false,
-                        inputType: TextInputType.name,
-                      ),
-                      //Last Name Field
-                      const SizedBox(height: 10),
-                      MyTextField(
-                        controller: lastNameController,
-                        hintText: 'Last Name',
-                        obscureText: false,
-                        inputType: TextInputType.name,
-                      ),
-                      const SizedBox(height: 10),
-                      MyTextField(
-                        controller: bioController,
-                        hintText: 'Bio',
-                        obscureText: false,
-                        inputType: TextInputType.text,
-                      ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      const Spacer(),
-                      MyButton(
-                        text: "Save Changes",
-                        onTap: () async {
-                          try {
-                            await FirebaseAuth.instance.currentUser!.reload();
-                            String result = await saveChanges();
-                            if (result != "success") {
-                              showMessage(result);
-                            } else {
-                              Navigator.pop(context);
-                            }
-                          } catch (e) {
-                            if (e.toString() ==
-                                "[firebase_auth/network-request-failed] Network error (such as timeout, interrupted connection or unreachable host) has occurred.") {
-                              showMessage(
-                                  "No internet connection, please try again later.");
-                            }
-                          }
-                        },
-                      ),
-                    ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Edit Profile",
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+              const Spacer(),
+              GestureDetector(
+                onTap: () async {
+                  image = await imagePicker.pickImage(
+                    source: ImageSource.gallery,
+                    maxHeight: 512,
+                    maxWidth: 512,
+                    imageQuality: 75,
+                  );
+                  setState(() {});
+                },
+                child: SizedBox(
+                  width: 120.0,
+                  height: 120.0,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: image != null
+                        ? Image.file(
+                            File(image!.path),
+                            fit: BoxFit.cover,
+                          )
+                        : hasPhoto
+                            ? Image.network(
+                                photoUrl,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset('lib/images/default_photo.jpeg'),
                   ),
                 ),
               ),
-            ),
-          );
+              const SizedBox(
+                height: 10.0,
+              ),
+              const SizedBox(height: 25),
+              //First Name Field
+              MyTextField(
+                controller: firstNameController,
+                hintText: 'First Name',
+                obscureText: false,
+                inputType: TextInputType.name,
+              ),
+              //Last Name Field
+              const SizedBox(height: 10),
+              MyTextField(
+                controller: lastNameController,
+                hintText: 'Last Name',
+                obscureText: false,
+                inputType: TextInputType.name,
+              ),
+              const SizedBox(height: 10),
+              MyTextField(
+                controller: bioController,
+                hintText: 'Bio',
+                obscureText: false,
+                inputType: TextInputType.text,
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
+              const Spacer(),
+              MyButton(
+                child: isLoading
+                    ? const CircularProgressIndicator(
+                        strokeWidth: 4.0,
+                        color: Colors.grey,
+                      )
+                    : Text(
+                        "Save Changes",
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: Theme.of(context).canvasColor,
+                            fontSize: 15.0),
+                      ),
+                onTap: () async {
+                  try {
+                    await FirebaseAuth.instance.currentUser!.reload();
+                    String result = await saveChanges();
+                    if (result != "success") {
+                      showMessage(result);
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  } catch (e) {
+                    if (e.toString() ==
+                        "[firebase_auth/network-request-failed] Network error (such as timeout, interrupted connection or unreachable host) has occurred.") {
+                      showMessage(
+                          "No internet connection, please try again later.");
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

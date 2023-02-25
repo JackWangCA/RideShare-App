@@ -56,9 +56,9 @@ class _CreateListingPageState extends State<CreateListingPage> {
                 child: CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.dateAndTime,
                   initialDateTime: latestTime(),
-                  minimumDate: DateTime.now()
-                      .toLocal()
-                      .subtract(const Duration(seconds: 1)),
+                  minimumDate: DateTime.now().toLocal().subtract(
+                        const Duration(seconds: 1),
+                      ),
                   onDateTimeChanged: (val) {
                     setState(() {
                       if (val.isBefore(DateTime.now())) {
@@ -94,7 +94,11 @@ class _CreateListingPageState extends State<CreateListingPage> {
                     ),
                   );
                 },
-                text: "Choose Locations",
+                child: Text(
+                  "Choose Locations",
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Theme.of(context).canvasColor, fontSize: 15.0),
+                ),
               )
             ],
           ),

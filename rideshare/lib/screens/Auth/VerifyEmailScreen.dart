@@ -8,6 +8,7 @@ import 'package:rideshare/screens/HomeScreen.dart';
 
 import '../../components/myButton.dart';
 import '../../resources/AuthService.dart';
+import 'VerifyEmailSuccessScreen.dart';
 
 class VerifyEmailPage extends StatefulWidget {
   const VerifyEmailPage({super.key});
@@ -125,7 +126,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   @override
   Widget build(BuildContext context) {
     return isEmailVerified
-        ? HomePage()
+        ? VerifyEmailSuccessPage()
         : Scaffold(
             appBar: AppBar(
               title: const Text("Verify Email"),
@@ -166,7 +167,12 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                     ),
                     const Spacer(),
                     MyButton(
-                      text: "Resend Email",
+                      child: Text(
+                        "Resend Email",
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: Theme.of(context).canvasColor,
+                            fontSize: 15.0),
+                      ),
                       onTap: () {
                         canResendEmail
                             ? reSendVerificationEmail()

@@ -73,68 +73,71 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
       body: SafeArea(
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              children: [
-                const Spacer(),
-                SizedBox(
-                  width: 120.0,
-                  height: 120.0,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(100),
-                    child: hasPhoto
-                        ? Image.network(
-                            photoUrl,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.asset(
-                            'lib/images/default_photo.jpeg',
-                            fit: BoxFit.cover,
-                          ),
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+              const Spacer(),
+              SizedBox(
+                width: 120.0,
+                height: 120.0,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: hasPhoto
+                      ? Image.network(
+                          photoUrl,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          'lib/images/default_photo.jpeg',
+                          fit: BoxFit.cover,
+                        ),
                 ),
-                const SizedBox(
-                  height: 10.0,
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
+              Text(
+                "$firstName $lastName",
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium!
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                email.isEmpty ? "No email" : email,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              Text(authUser.emailVerified ? "Verified" : "Unverified"),
+              Text(
+                bio.isEmpty ? "No bio" : bio,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
+              const Spacer(),
+              MyButton(
+                child: Text(
+                  "Edit Profile",
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Theme.of(context).canvasColor, fontSize: 15.0),
                 ),
-                Text(
-                  "$firstName $lastName",
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .copyWith(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  email.isEmpty ? "No email" : email,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                Text(
-                  bio.isEmpty ? "No bio" : bio,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(
-                  height: 10.0,
-                ),
-                const Spacer(),
-                MyButton(
-                  text: "Edit Profile",
-                  onTap: () {
-                    Navigator.of(context)
-                        .push(
-                      MaterialPageRoute(
-                        builder: (context) => EditProfilePage(),
-                      ),
-                    )
-                        .then((value) {
-                      setState(() {
-                        getData();
-                      });
+                onTap: () {
+                  Navigator.of(context)
+                      .push(
+                    MaterialPageRoute(
+                      builder: (context) => EditProfilePage(),
+                    ),
+                  )
+                      .then((value) {
+                    setState(() {
+                      getData();
                     });
-                  },
-                ),
-              ],
-            ),
+                  });
+                },
+              ),
+            ],
           ),
         ),
       ),

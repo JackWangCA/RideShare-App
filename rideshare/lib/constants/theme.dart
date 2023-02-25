@@ -9,6 +9,7 @@ ThemeData lightTheme = ThemeData(
     foregroundColor: Colors.black,
     backgroundColor: Colors.white,
   ),
+  hintColor: Colors.grey,
   dividerColor: Colors.grey,
   cardColor: Colors.grey[200],
   focusColor: Colors.black,
@@ -46,6 +47,7 @@ ThemeData darkTheme = ThemeData(
   visualDensity: VisualDensity.comfortable,
   canvasColor: Colors.black,
   buttonColor: Colors.white,
+  hintColor: Colors.grey,
   appBarTheme: const AppBarTheme(
     foregroundColor: Colors.white70,
     backgroundColor: Colors.black,

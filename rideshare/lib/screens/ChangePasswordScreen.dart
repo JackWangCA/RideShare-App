@@ -16,6 +16,7 @@ class ChangePasswordPage extends StatefulWidget {
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -51,60 +52,73 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         ),
       ),
       body: SafeArea(
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.all(15.0),
+                child: Text(
+                  "Please enter your new password.",
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
 
-                Container(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Text(
-                    "Please enter your new password.",
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .copyWith(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10.0,
-                ),
+              MyTextField(
+                controller: passwordController,
+                hintText: 'Password',
+                obscureText: true,
+                inputType: TextInputType.text,
+              ),
+              const SizedBox(height: 10),
 
-                MyTextField(
-                  controller: passwordController,
-                  hintText: 'Password',
-                  obscureText: true,
-                  inputType: TextInputType.text,
-                ),
-                const SizedBox(height: 10),
-
-                //Confirm Password Field
-                MyTextField(
-                  controller: confirmPasswordController,
-                  hintText: 'Confirm Password',
-                  obscureText: true,
-                  inputType: TextInputType.text,
-                ),
-                const Spacer(),
-                MyButton(
-                  text: "Confirm",
-                  onTap: () async {
-                    String result = await AuthService().updatePassword(
-                      newPassword: passwordController.text.trim(),
-                      confirmPassword: confirmPasswordController.text.trim(),
-                    );
-                    if (result != "success") {
-                      showMessage(result);
-                    } else {
-                      showMessage("Password changed successfully");
-                    }
-                  },
-                ),
-              ],
-            ),
+              //Confirm Password Field
+              MyTextField(
+                controller: confirmPasswordController,
+                hintText: 'Confirm Password',
+                obscureText: true,
+                inputType: TextInputType.text,
+              ),
+              const Spacer(),
+              MyButton(
+                child: isLoading
+                    ? const CircularProgressIndicator(
+                        strokeWidth: 4.0,
+                        color: Colors.grey,
+                      )
+                    : Text(
+                        "Confirm",
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: Theme.of(context).canvasColor,
+                            fontSize: 15.0),
+                      ),
+                onTap: () async {
+                  setState(() {
+                    isLoading = true;
+                  });
+                  String result = await AuthService().updatePassword(
+                    newPassword: passwordController.text.trim(),
+                    confirmPassword: confirmPasswordController.text.trim(),
+                  );
+                  setState(() {
+                    isLoading = false;
+                  });
+                  if (result != "success") {
+                    showMessage(result);
+                  } else {
+                    showMessage("Password changed successfully");
+                  }
+                },
+              ),
+            ],
           ),
         ),
       ),

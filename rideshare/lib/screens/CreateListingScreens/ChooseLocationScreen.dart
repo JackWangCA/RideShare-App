@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:rideshare/components/myLocationTextField.dart';
 import 'package:rideshare/models/listing.dart';
 
 import '../../models/LocationListTile.dart';
@@ -33,7 +34,7 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
   String apiKey = "AIzaSyAoY0zvH1IO2Q9dB7WbHti7_F_l7fqc7tI";
   String destinationText = "";
   List<AutoCompletePrediction> placePredictions = [];
-  bool startLocationPredictionOpen = true;
+  bool startLocationPredictionOpen = false;
 
   void determineLocation() async {
     String result = "Some error occurred, please try again later.";
@@ -115,45 +116,27 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
               Form(
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    autocorrect: true,
-                    autofocus: false,
-                    controller: startLocationTextController,
-                    onChanged: (value) {
-                      if (value.isEmpty) {
-                        setState(() {
-                          startLocationPredictionOpen = false;
-                        });
-                      }
-                      placeAutoComplete(value);
-                      setState(() {
-                        startLocationPredictionOpen = true;
-                      });
-                    },
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                        borderSide: const BorderSide(
-                          width: 0,
-                          style: BorderStyle.none,
-                        ),
-                      ),
-                      filled: true,
-                      fillColor: Theme.of(context).scaffoldBackgroundColor,
-                      focusColor: Theme.of(context).focusColor,
-                      hintText: "Search for your starting location.",
-                      prefixIcon: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 0.0),
-                        child: Icon(Icons.search),
-                      ),
-                    ),
-                  ),
+                  child: MyLocationTextField(
+                      controller: startLocationTextController,
+                      hintText: "Start Location",
+                      obscureText: false,
+                      inputType: TextInputType.streetAddress,
+                      onChanged: (value) {
+                        if (value.isEmpty) {
+                          setState(() {
+                            startLocationPredictionOpen = false;
+                          });
+                        } else {
+                          placeAutoComplete(value);
+                          setState(() {
+                            startLocationPredictionOpen = true;
+                          });
+                        }
+                      }),
                 ),
               ),
               startLocationPredictionOpen
                   ? Flexible(
-                      fit: FlexFit.loose,
                       child: ListView.builder(
                         itemCount: placePredictions.length,
                         itemBuilder: (context, index) => LocationListTile(
@@ -171,9 +154,7 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                         ),
                       ),
                     )
-                  : const SizedBox(
-                      height: 1,
-                    ),
+                  : const SizedBox(),
               Text(widget.listing.departTime.toLocal().toString()),
             ],
           ),

@@ -73,31 +73,45 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(30.0),
-            child: Text(
-              "Enter your email below",
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.all(15.0),
+                child: Text(
+                  "Please enter your email address.",
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(
+                height: 10.0,
+              ),
+              MyTextField(
+                controller: emailController,
+                hintText: 'Email',
+                obscureText: false,
+                inputType: TextInputType.emailAddress,
+              ),
+              const Spacer(),
+              MyButton(
+                child: Text(
+                  "Send reset link",
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Theme.of(context).canvasColor, fontSize: 15.0),
+                ),
+                onTap: () {
+                  passwordReset();
+                },
+              ),
+            ],
           ),
-          MyTextField(
-            controller: emailController,
-            hintText: 'Email',
-            obscureText: false,
-            inputType: TextInputType.emailAddress,
-          ),
-          const SizedBox(
-            height: 30.0,
-          ),
-          MyButton(
-            text: "Send reset link",
-            onTap: () {
-              passwordReset();
-            },
-          ),
-        ],
+        ),
       ),
     );
   }

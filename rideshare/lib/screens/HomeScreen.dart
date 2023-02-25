@@ -119,17 +119,22 @@ class _HomePageState extends State<HomePage> {
                   actions: <Widget>[
                     IconButton(
                         onPressed: () {
-                          Navigator.of(context)
-                              .push(
-                            MaterialPageRoute(
-                              builder: (context) => const CreateListingPage(),
-                            ),
-                          )
-                              .then((value) {
-                            setState(() {
-                              getData();
+                          if (authUser.emailVerified) {
+                            Navigator.of(context)
+                                .push(
+                              MaterialPageRoute(
+                                builder: (context) => const CreateListingPage(),
+                              ),
+                            )
+                                .then((value) {
+                              setState(() {
+                                getData();
+                              });
                             });
-                          });
+                          } else {
+                            showMessage(
+                                "You have to verify your email address before making a post");
+                          }
                         },
                         icon: const Icon(Icons.add))
                   ],
@@ -139,41 +144,47 @@ class _HomePageState extends State<HomePage> {
                 drawer: Drawer(
                   child: ListView(
                     children: [
-                      DrawerHeader(
-                        child: Center(
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                width: 80.0,
-                                height: 80.0,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: hasPhoto
-                                      ? Image.network(
-                                          photoUrl,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : Image.asset(
-                                          'lib/images/default_photo.jpeg',
-                                          fit: BoxFit.cover,
-                                        ),
+                      SizedBox(
+                        height: 180,
+                        child: DrawerHeader(
+                          child: Center(
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  width: 80.0,
+                                  height: 80.0,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: hasPhoto
+                                        ? Image.network(
+                                            photoUrl,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Image.asset(
+                                            'lib/images/default_photo.jpeg',
+                                            fit: BoxFit.cover,
+                                          ),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(
-                                height: 10.0,
-                              ),
-                              Text(
-                                "$firstName $lastName",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                email,
-                                style: Theme.of(context).textTheme.titleSmall,
-                              ),
-                            ],
+                                const SizedBox(
+                                  height: 10.0,
+                                ),
+                                Text(
+                                  "$firstName $lastName",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  email,
+                                  style: Theme.of(context).textTheme.titleSmall,
+                                ),
+                                Text(authUser.emailVerified
+                                    ? "Verified"
+                                    : "Unverified"),
+                              ],
+                            ),
                           ),
                         ),
                       ),
