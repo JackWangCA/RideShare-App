@@ -250,15 +250,17 @@ class AuthService {
 
   Future<String> updateEmail({required String newEmail}) async {
     String result = "Some error occurred, please try again later.";
+    bool isCollegeStudent = newEmail.trim().endsWith("edu");
     if (newEmail.trim().isNotEmpty && _auth.currentUser != null) {
       try {
         User currentUser = _auth.currentUser!;
         DocumentSnapshot documentSnapshot =
             await _firestore.collection('users').doc(currentUser.uid).get();
         model.User user = model.User.fromSnap(documentSnapshot);
+        user.email = newEmail;
+        user.isCollegeStudent = isCollegeStudent;
         try {
           await _auth.currentUser!.updateEmail(newEmail);
-          user.email = newEmail;
           await _firestore.collection("users").doc(user.uid).set(user.toJson());
           result = "success";
         } on FirebaseAuthException catch (e) {
