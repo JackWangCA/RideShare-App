@@ -46,6 +46,7 @@ class AuthService {
     required String lastName,
   }) async {
     String result = "Some error occurred, please try again later.";
+    bool isCollegeStudent = email.trim().endsWith("edu");
     if (email.isNotEmpty &&
         firstName.isNotEmpty &&
         lastName.isNotEmpty &&
@@ -66,6 +67,7 @@ class AuthService {
           firstName: firstName,
           lastName: lastName,
           listings: [],
+          isCollegeStudent: isCollegeStudent,
         );
 
         // adding user in our database
@@ -242,6 +244,30 @@ class AuthService {
       }
     } else if (newPassword.trim() != confirmPassword.trim()) {
       result = "The two passwords do not match.";
+    }
+    return result;
+  }
+
+  Future<String> updateEmail({required String newEmail}) async {
+    String result = "Some error occurred, please try again later.";
+    if (newEmail.trim().isNotEmpty && _auth.currentUser != null) {
+      try {
+        User currentUser = _auth.currentUser!;
+        DocumentSnapshot documentSnapshot =
+            await _firestore.collection('users').doc(currentUser.uid).get();
+        model.User user = model.User.fromSnap(documentSnapshot);
+        try {
+          await _auth.currentUser!.updateEmail(newEmail);
+          user.email = newEmail;
+          await _firestore.collection("users").doc(user.uid).set(user.toJson());
+          result = "success";
+        } on FirebaseAuthException catch (e) {
+          print(e.code);
+          result = e.code;
+        }
+      } catch (e) {
+        result = e.toString();
+      }
     }
     return result;
   }

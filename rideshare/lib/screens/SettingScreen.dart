@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rideshare/resources/AuthService.dart';
 import 'package:rideshare/screens/AccountDeleteScreen.dart';
+import 'package:rideshare/screens/ChangeEmailScreen.dart';
 import 'package:rideshare/screens/ChangePasswordScreen.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:rideshare/components/themeProvider.dart';
@@ -112,6 +113,20 @@ class _SettingsPageState extends State<SettingsPage> {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => AccountDeletePage(),
+                      ),
+                    );
+                  },
+                ),
+                SettingsTile.navigation(
+                  leading: const Icon(Icons.mark_email_read),
+                  title: Text(
+                    'Change Email',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  onPressed: (context) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ChangeEmailPage(),
                       ),
                     );
                   },

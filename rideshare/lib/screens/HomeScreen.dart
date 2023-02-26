@@ -22,13 +22,20 @@ class _HomePageState extends State<HomePage> {
   final authUser = FirebaseAuth.instance.currentUser!;
   late StreamSubscription internetSubscription;
   bool hasInternet = true;
-  String uid = "";
-  String email = "";
-  String firstName = "";
-  String lastName = "";
-  String photoUrl = "";
   bool isLoading = false;
+  // String uid = "";
+  // String email = "";
+  // String firstName = "";
+  // String lastName = "";
+  // String photoUrl = "";
   bool hasPhoto = false;
+  model.User user = model.User(
+    uid: "uid",
+    email: "email",
+    firstName: "firstName",
+    lastName: "lastName",
+    listings: [],
+  );
 
   @override
   void dispose() {
@@ -83,18 +90,23 @@ class _HomePageState extends State<HomePage> {
           .doc(authUser.uid)
           .get();
       setState(() {
-        model.User user = model.User.fromSnap(userSnap);
-        uid = user.uid;
-        email = user.email;
-        firstName = user.firstName;
-        lastName = user.lastName;
-        photoUrl = user.photoUrl;
+        user = model.User.fromSnap(userSnap);
+        // uid = user.uid;
+        // email = user.email;
+        // firstName = user.firstName;
+        // lastName = user.lastName;
+        // photoUrl = user.photoUrl;
       });
+      // print(user.photoUrl);
 
-      if (photoUrl.isEmpty) {
-        hasPhoto = false;
+      if (user.photoUrl.isEmpty) {
+        setState(() {
+          hasPhoto = false;
+        });
       } else {
-        hasPhoto = true;
+        setState(() {
+          hasPhoto = true;
+        });
       }
     } catch (e) {
       print(e.toString());
@@ -157,7 +169,7 @@ class _HomePageState extends State<HomePage> {
                                     borderRadius: BorderRadius.circular(100),
                                     child: hasPhoto
                                         ? Image.network(
-                                            photoUrl,
+                                            user.photoUrl,
                                             fit: BoxFit.cover,
                                           )
                                         : Image.asset(
@@ -170,19 +182,21 @@ class _HomePageState extends State<HomePage> {
                                   height: 10.0,
                                 ),
                                 Text(
-                                  "$firstName $lastName",
+                                  user.firstName + " " + user.lastName,
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium!
                                       .copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  email,
+                                  user.email,
                                   style: Theme.of(context).textTheme.titleSmall,
                                 ),
-                                Text(authUser.emailVerified
-                                    ? "Verified"
-                                    : "Unverified"),
+                                Text(
+                                  authUser.emailVerified
+                                      ? "Verified"
+                                      : "Unverified",
+                                ),
                               ],
                             ),
                           ),

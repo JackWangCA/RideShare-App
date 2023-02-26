@@ -17,13 +17,19 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final authUser = FirebaseAuth.instance.currentUser!;
-
-  String uid = "";
-  String email = "";
-  String firstName = "";
-  String lastName = "";
-  String bio = "";
-  String photoUrl = "";
+  model.User user = model.User(
+    uid: "",
+    email: "",
+    firstName: "",
+    lastName: "",
+    listings: [],
+  );
+  // String uid = "";
+  // String email = "";
+  // String firstName = "";
+  // String lastName = "";
+  // String bio = "";
+  // String photoUrl = "";
   bool hasPhoto = false;
 
   @override
@@ -40,16 +46,16 @@ class _ProfilePageState extends State<ProfilePage> {
           .get();
 
       setState(() {
-        model.User user = model.User.fromSnap(userSnap);
-        uid = user.uid;
-        email = user.email;
-        bio = user.bio;
-        firstName = user.firstName;
-        lastName = user.lastName;
-        photoUrl = user.photoUrl;
+        user = model.User.fromSnap(userSnap);
+        // uid = user.uid;
+        // email = user.email;
+        // bio = user.bio;
+        // firstName = user.firstName;
+        // lastName = user.lastName;
+        // photoUrl = user.photoUrl;
       });
 
-      if (photoUrl.isEmpty) {
+      if (user.photoUrl.isEmpty) {
         hasPhoto = false;
       } else {
         hasPhoto = true;
@@ -85,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   borderRadius: BorderRadius.circular(100),
                   child: hasPhoto
                       ? Image.network(
-                          photoUrl,
+                          user.photoUrl,
                           fit: BoxFit.cover,
                         )
                       : Image.asset(
@@ -98,24 +104,27 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 10.0,
               ),
               Text(
-                "$firstName $lastName",
+                user.firstName + " " + user.lastName,
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium!
                     .copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
-                email.isEmpty ? "No email" : email,
+                user.email.isEmpty ? "No email" : user.email,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               Text(authUser.emailVerified ? "Verified" : "Unverified"),
               Text(
-                bio.isEmpty ? "No bio" : bio,
+                user.bio.isEmpty ? "No bio" : user.bio,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(
                 height: 10.0,
               ),
+              Text(user.isCollegeStudent
+                  ? "College Student"
+                  : "Not College Student"),
               const Spacer(),
               MyButton(
                 child: Text(

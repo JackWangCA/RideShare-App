@@ -31,16 +31,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
   XFile? image;
   bool isLoading = false;
 
-  String uid = "";
-  String email = "";
-  String firstName = "";
-  String lastName = "";
-  String bio = "";
-  String photoUrl = "";
-  bool emailVerified = false;
-  bool phoneVerified = false;
+  // String uid = "";
+  // String email = "";
+  // String firstName = "";
+  // String lastName = "";
+  // String bio = "";
+  // String photoUrl = "";
+  // bool emailVerified = false;
+  // bool phoneVerified = false;
   bool hasPhoto = false;
-  List listings = [];
+  // List listings = [];
+  model.User user = model.User(
+    uid: "",
+    email: "",
+    firstName: "",
+    lastName: "",
+    listings: [],
+  );
 
   @override
   void initState() {
@@ -63,27 +70,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
           .doc(authUser.uid)
           .get();
 
-      model.User user = model.User.fromSnap(userSnap);
-      uid = user.uid;
-      email = user.email;
-      bio = user.bio;
-      firstName = user.firstName;
-      lastName = user.lastName;
-      photoUrl = user.photoUrl;
-      listings = user.listings;
+      user = model.User.fromSnap(userSnap);
 
-      if (photoUrl.isEmpty) {
-        hasPhoto = false;
+      if (user.photoUrl.isEmpty) {
+        setState(() {
+          hasPhoto = false;
+        });
       } else {
-        hasPhoto = true;
+        setState(() {
+          hasPhoto = true;
+        });
       }
     } catch (e) {
       print(e);
     }
     setState(() {
-      firstNameController.text = firstName;
-      lastNameController.text = lastName;
-      bioController.text = bio;
+      firstNameController.text = user.firstName;
+      lastNameController.text = user.lastName;
+      bioController.text = user.bio;
     });
   }
 
@@ -113,17 +117,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
     String result = "There has been some issues, please try again later.";
     if (image != null) {
-      Reference ref =
-          FirebaseStorage.instance.ref().child("Profile Images").child(uid);
+      Reference ref = FirebaseStorage.instance
+          .ref()
+          .child("Profile Images")
+          .child(user.uid);
       await ref.putFile(File(image!.path));
-      photoUrl = await ref.getDownloadURL();
+      user.photoUrl = await ref.getDownloadURL();
     }
     if (firstnameFormatCorrect() && lastnameFormatCorrect()) {
       result = await AuthService().updateUserDetails(
         firstName: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
         bio: bioController.text.trim(),
-        photoUrl: photoUrl,
+        photoUrl: user.photoUrl,
       );
     } else {
       result = "Format is incorrect, try again.";
@@ -189,7 +195,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           )
                         : hasPhoto
                             ? Image.network(
-                                photoUrl,
+                                user.photoUrl,
                                 fit: BoxFit.cover,
                               )
                             : Image.asset('lib/images/default_photo.jpeg'),

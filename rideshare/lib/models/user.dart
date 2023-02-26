@@ -10,6 +10,7 @@ class User {
   String lastName;
   String phoneNumber;
   List listings;
+  bool isCollegeStudent;
 
   User({
     required this.uid,
@@ -20,6 +21,7 @@ class User {
     required this.lastName,
     this.phoneNumber = "",
     required this.listings,
+    this.isCollegeStudent = false,
   });
 
   static User fromSnap(DocumentSnapshot snap) {
@@ -34,6 +36,7 @@ class User {
       lastName: snapshot["lastName"],
       phoneNumber: snapshot["phoneNumber"],
       listings: snapshot["listings"],
+      isCollegeStudent: snapshot["isCollegeStudent"],
     );
   }
 
@@ -46,5 +49,6 @@ class User {
         "lastName": lastName,
         "phoneNumber": phoneNumber,
         "listings": listings,
+        "isCollegeStudent": isCollegeStudent,
       };
 }
