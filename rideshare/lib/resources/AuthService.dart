@@ -236,6 +236,9 @@ class AuthService {
         else if (e.code == "requires-recent-login") {
           result =
               "It's been too long since your last login, try logging in again and then change your password.";
+        } else if (e.code == 'user-disabled') {
+          result =
+              "Your account has been suspended. Contact support at xxxxxx@gmail.com";
         }
         //return error code otherwise
         else {
@@ -264,12 +267,27 @@ class AuthService {
           await _firestore.collection("users").doc(user.uid).set(user.toJson());
           result = "success";
         } on FirebaseAuthException catch (e) {
-          print(e.code);
-          result = e.code;
+          if (e.code == "email-already-in-use") {
+            result = "This email is already registered!";
+          } else if (e.code == "invalid-email") {
+            result = "Hmmm, that email doesn't look right....";
+          } else if (e.code == 'network-request-failed') {
+            result = "Can't connect to internet, please check your connection!";
+          } else if (e.code == 'user-disabled') {
+            result =
+                "Your account has been suspended. Contact support at xxxxxx@gmail.com";
+          } else if (e.code == "requires-recent-login") {
+            result =
+                "It's been too long since your last login, try logging in again and then change your email address.";
+          } else {
+            result = e.code;
+          }
         }
       } catch (e) {
         result = e.toString();
       }
+    } else if (newEmail.trim().isEmpty) {
+      result = "Don't leave it blank!";
     }
     return result;
   }

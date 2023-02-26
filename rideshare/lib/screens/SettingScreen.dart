@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rideshare/resources/AuthService.dart';
 import 'package:rideshare/screens/AccountDeleteScreen.dart';
-import 'package:rideshare/screens/ChangeEmailScreen.dart';
-import 'package:rideshare/screens/ChangePasswordScreen.dart';
+import 'package:rideshare/screens/Auth/ChangeEmailScreen.dart';
+import 'package:rideshare/screens/Auth/ChangePasswordScreen.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:rideshare/components/themeProvider.dart';
 

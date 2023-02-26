@@ -67,7 +67,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '227986971808',
     projectId: 'rideshare-cdad7',
     storageBucket: 'rideshare-cdad7.appspot.com',
-    iosClientId: '227986971808-aqtcie3k91uf3e0li163kms7tm1c2a65.apps.googleusercontent.com',
+    iosClientId:
+        '227986971808-aqtcie3k91uf3e0li163kms7tm1c2a65.apps.googleusercontent.com',
     iosBundleId: 'com.example.rideshare',
   );
 
@@ -77,7 +78,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '227986971808',
     projectId: 'rideshare-cdad7',
     storageBucket: 'rideshare-cdad7.appspot.com',
-    iosClientId: '227986971808-aqtcie3k91uf3e0li163kms7tm1c2a65.apps.googleusercontent.com',
+    iosClientId:
+        '227986971808-aqtcie3k91uf3e0li163kms7tm1c2a65.apps.googleusercontent.com',
     iosBundleId: 'com.example.rideshare',
   );
 }

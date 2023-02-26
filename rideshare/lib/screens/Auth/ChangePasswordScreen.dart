@@ -3,8 +3,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:rideshare/resources/AuthService.dart';
 
-import '../components/myButton.dart';
-import '../components/myTextField.dart';
+import '../../components/myButton.dart';
+import '../../components/myTextField.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});

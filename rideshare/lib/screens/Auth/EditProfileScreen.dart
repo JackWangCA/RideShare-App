@@ -12,8 +12,8 @@ import 'package:provider/provider.dart';
 import 'package:rideshare/models/user.dart' as model;
 import 'package:rideshare/resources/AuthService.dart';
 
-import '../components/myButton.dart';
-import '../components/myTextField.dart';
+import '../../components/myButton.dart';
+import '../../components/myTextField.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});

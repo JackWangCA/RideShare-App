@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:rideshare/screens/Auth/AuthScreen.dart';
 import 'package:rideshare/screens/HomeScreen.dart';
 
-import '../../components/myButton.dart';
+import '../../../components/myButton.dart';
 
-class VerifyEmailSuccessPage extends StatelessWidget {
-  const VerifyEmailSuccessPage({super.key});
+class ChangeEmailSuccessPage extends StatelessWidget {
+  const ChangeEmailSuccessPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,7 @@ class VerifyEmailSuccessPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
-                  "Email Successfully Verified!",
+                  "Email Successfully Changed! Now you will be logged off for security measures.",
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium!
@@ -37,7 +38,7 @@ class VerifyEmailSuccessPage extends StatelessWidget {
               const Spacer(),
               MyButton(
                 child: Text(
-                  "Return Home",
+                  "Log out",
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                       color: Theme.of(context).canvasColor, fontSize: 15.0),
                 ),
@@ -46,7 +47,7 @@ class VerifyEmailSuccessPage extends StatelessWidget {
                   Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => HomePage(),
+                          builder: (context) => AuthPage(),
                           maintainState: true),
                       (Route<dynamic> route) => false);
                 },

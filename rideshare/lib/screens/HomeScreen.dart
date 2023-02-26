@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:rideshare/resources/AuthService.dart';
-import 'package:rideshare/screens/ProfileScreen.dart';
+import 'package:rideshare/screens/Auth/ProfileScreen.dart';
 import 'package:rideshare/screens/SettingScreen.dart';
 import 'package:rideshare/models/user.dart' as model;
 

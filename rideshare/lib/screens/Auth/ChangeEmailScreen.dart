@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 
-import '../components/myButton.dart';
-import '../components/myTextField.dart';
-import '../resources/AuthService.dart';
+import '../../components/myButton.dart';
+import '../../components/myTextField.dart';
+import '../../resources/AuthService.dart';
+import 'ChangeEmailSuccessScreen.dart';
 
 class ChangeEmailPage extends StatefulWidget {
   const ChangeEmailPage({super.key});
@@ -66,6 +67,13 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                       .copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
+              Container(
+                padding: const EdgeInsets.all(15.0),
+                child: Text(
+                  "Note that you will be logged off after changing your email.",
+                  style: Theme.of(context).textTheme.titleMedium!,
+                ),
+              ),
               const SizedBox(
                 height: 10.0,
               ),
@@ -102,7 +110,14 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                   if (result != "success") {
                     showMessage(result);
                   } else {
-                    showMessage("Email changed successfully");
+                    await AuthService().signOut();
+                    // ignore: use_build_context_synchronously
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ChangeEmailSuccessPage(),
+                            maintainState: true),
+                        (Route<dynamic> route) => false);
                   }
                 },
               ),

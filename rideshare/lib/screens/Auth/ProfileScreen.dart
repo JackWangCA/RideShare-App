@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:rideshare/models/user.dart' as model;
-import 'package:rideshare/screens/EditProfileScreen.dart';
+import 'package:rideshare/screens/Auth/EditProfileScreen.dart';
 
-import '../components/myButton.dart';
+import '../../components/myButton.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
