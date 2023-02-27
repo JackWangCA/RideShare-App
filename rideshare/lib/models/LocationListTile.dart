@@ -20,7 +20,7 @@ class LocationListTile extends StatelessWidget {
         ListTile(
           onTap: onTap,
           horizontalTitleGap: 0,
-          leading: const Icon(Icons.location_city),
+          leading: const Icon(Icons.pin_drop_rounded),
           title: Text(
             location,
             maxLines: 2,
@@ -28,11 +28,11 @@ class LocationListTile extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
-        Divider(
-          height: 2,
-          thickness: 2,
-          color: Theme.of(context).hintColor,
-        ),
+        // Divider(
+        //   height: 2,
+        //   thickness: 2,
+        //   color: Theme.of(context).hintColor,
+        // ),
       ],
     );
   }

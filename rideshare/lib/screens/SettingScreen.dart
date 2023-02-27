@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rideshare/resources/AuthService.dart';
-import 'package:rideshare/screens/AccountDeleteScreen.dart';
+import 'package:rideshare/screens/Auth/AccountDeleteScreen.dart';
 import 'package:rideshare/screens/Auth/ChangeEmailScreen.dart';
 import 'package:rideshare/screens/Auth/ChangePasswordScreen.dart';
 import 'package:settings_ui/settings_ui.dart';

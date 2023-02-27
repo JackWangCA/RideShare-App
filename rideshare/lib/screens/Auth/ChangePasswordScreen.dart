@@ -5,6 +5,7 @@ import 'package:rideshare/resources/AuthService.dart';
 
 import '../../components/myButton.dart';
 import '../../components/myTextField.dart';
+import 'ChangePasswordSuccessScreen.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -114,7 +115,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   if (result != "success") {
                     showMessage(result);
                   } else {
-                    showMessage("Password changed successfully");
+                    await AuthService().signOut();
+                    // ignore: use_build_context_synchronously
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const ChangePasswordSuccessPage(),
+                            maintainState: true),
+                        (Route<dynamic> route) => false);
                   }
                 },
               ),

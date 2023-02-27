@@ -13,6 +13,7 @@ import '../../models/LocationListTile.dart';
 import '../../resources/AutocompletePrediction.dart';
 import '../../resources/NetworkService.dart';
 import '../../resources/PlaceAutoCompleteResponse.dart';
+import '../../resources/PlaceIdResponse.dart';
 
 class ChooseLocationPage extends StatefulWidget {
   final Listing listing;
@@ -23,23 +24,39 @@ class ChooseLocationPage extends StatefulWidget {
 }
 
 class _ChooseLocationPageState extends State<ChooseLocationPage> {
-  @override
-  void initState() {
-    super.initState();
-    determineLocation();
-  }
-
   GeoPoint? userLocation;
   GeoPoint? startLocation;
   GeoPoint? destination;
   final startLocationTextController = TextEditingController();
   final destinationTextController = TextEditingController();
+  String startLocationPlaceId = "";
+  String destinationPlaceId = "";
+  // DetailedResult? startLocationDetails;
+  // DetailedResult? destinationDetails;
+  late FocusNode startLocationFocusNode;
+  late FocusNode destinationFocusNode;
   String apiKey = "AIzaSyAoY0zvH1IO2Q9dB7WbHti7_F_l7fqc7tI";
-  String destinationText = "";
   List<AutoCompletePrediction> placePredictions = [];
   bool startLocationPredictionOpen = false;
 
   Timer? debounce;
+  @override
+  void initState() {
+    super.initState();
+    // determineLocation();
+    startLocationFocusNode = FocusNode();
+    destinationFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    startLocationFocusNode.dispose();
+    destinationFocusNode.dispose();
+    debounce!.cancel();
+    startLocationTextController.dispose();
+    destinationTextController.dispose();
+  }
 
   void determineLocation() async {
     String result = "Some error occurred, please try again later.";
@@ -75,9 +92,35 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
     }
   }
 
+  void getCoordinatesFromAddress(String placeId) async {
+    Uri geocoderuri = Uri.https(
+      "maps.googleapis.com",
+      "maps/api/place/details/json",
+      {
+        "place_id": placeId,
+        "key": apiKey,
+      },
+    );
+    String? response = await NetworkService.fetchUrl(geocoderuri);
+    if (response != null) {
+      // print("here it comes");
+      // print(response);
+      PlaceIdResponse result = PlaceIdResponse.paresePlaceIdResult(response);
+      if ((result.details != null)) {
+        double lat = result.details!.geometry!.location!.lat!;
+        double lng = result.details!.geometry!.location!.lng!;
+        print(lat);
+        print(lng);
+        setState(() {
+          startLocation = GeoPoint(lat, lng);
+        });
+      }
+    }
+  }
+
   void placeAutoComplete(String query) async {
     if (query.isNotEmpty) {
-      Uri uri = Uri.https(
+      Uri autoCompleteuri = Uri.https(
         "maps.googleapis.com",
         "maps/api/place/autocomplete/json",
         {
@@ -85,11 +128,12 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
           "key": apiKey,
         },
       );
-      String? response = await NetworkService.fetchUrl(uri);
+      String? response = await NetworkService.fetchUrl(autoCompleteuri);
 
       if (response != null) {
         PlaceAutocompleteResponse result =
             PlaceAutocompleteResponse.pareseAutoCompleteResult(response);
+        // print(response);
 
         if (result.predictions != null) {
           setState(() {
@@ -158,14 +202,31 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                         itemBuilder: (context, index) => LocationListTile(
                           location:
                               placePredictions.elementAt(index).description!,
-                          onTap: () {
+                          onTap: () async {
                             setState(() {
+                              startLocationPlaceId =
+                                  placePredictions.elementAt(index).placeId!;
                               startLocationTextController.text =
                                   placePredictions
                                       .elementAt(index)
                                       .description!;
                               startLocationPredictionOpen = false;
+                              print(
+                                  placePredictions.elementAt(index).reference);
                             });
+                            getCoordinatesFromAddress(startLocationPlaceId);
+                            // final plist = GoogleMapsPlaces(
+                            //   apiKey: apiKey,
+                            //   apiHeaders: await GoogleApiHeaders().getHeaders(),
+                            //   //from google_api_headers package
+                            // );
+                            // final detail = await plist
+                            //     .getDetailsByPlaceId(startLocationPlaceId);
+                            // final geometry = detail.result.geometry!;
+                            // final lat = geometry.location.lat;
+                            // final long = geometry.location.lng;
+                            // print(lat);
+                            // print(long);
                           },
                         ),
                       ),
