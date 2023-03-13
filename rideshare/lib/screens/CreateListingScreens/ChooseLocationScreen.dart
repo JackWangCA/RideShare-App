@@ -30,11 +30,12 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
   String apiKey = "AIzaSyAoY0zvH1IO2Q9dB7WbHti7_F_l7fqc7tI";
   late Listing listing;
 
+  Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
   GeoPoint? userLocation = const GeoPoint(40.1020, -88.2272);
   GeoPoint? startLocation = const GeoPoint(0, 0);
   GeoPoint? destination = const GeoPoint(0, 0);
-  Marker startMarker = const Marker(markerId: MarkerId("no"));
-  Marker destinationMarker = const Marker(markerId: MarkerId("no"));
+  Marker startMarker = const Marker(markerId: MarkerId("startLocation"));
+  Marker destinationMarker = const Marker(markerId: MarkerId("destination"));
   GoogleMap? map;
   GoogleMapController? mapController;
 
@@ -57,7 +58,6 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
     super.initState();
     listing = widget.listing;
     determineLocation();
-    initializeMap();
     startLocationFocusNode = FocusNode();
     destinationFocusNode = FocusNode();
   }
@@ -69,28 +69,6 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
     destinationFocusNode.dispose();
     startLocationTextController.dispose();
     destinationTextController.dispose();
-  }
-
-  void initializeMap() {
-    map = GoogleMap(
-      onMapCreated: (controller) {
-        //method called when map is created
-        setState(() {
-          mapController = controller;
-        });
-      },
-      myLocationEnabled: true,
-      scrollGesturesEnabled: true,
-      myLocationButtonEnabled: false,
-      zoomControlsEnabled: true,
-      initialCameraPosition: CameraPosition(
-        target: LatLng(userLocation!.latitude, userLocation!.longitude),
-      ),
-      markers: <Marker>{
-        if (startMarker.markerId.value != "no") startMarker,
-        if (destinationMarker.markerId.value != "no") destinationMarker,
-      },
-    );
   }
 
   void determineLocation() async {
@@ -119,6 +97,7 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
       setState(() {
         userLocation = GeoPoint(userPosition.latitude, userPosition.longitude);
       });
+      animateCamera();
 
       result = "success";
     }
@@ -180,7 +159,54 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
     return predictions;
   }
 
-// Will set the location, location text, maker details, and camera based on flcus
+  void animateCamera() {
+    if (markers.isEmpty) {
+      mapController?.animateCamera(CameraUpdate.newCameraPosition(
+          CameraPosition(
+              target: LatLng(userLocation!.latitude, userLocation!.longitude),
+              zoom: 13)));
+    } else if (markers.length == 1) {
+      if (markers.containsKey(const MarkerId("start"))) {
+        mapController?.animateCamera(CameraUpdate.newCameraPosition(
+            CameraPosition(
+                target: LatLng(
+                    markers[const MarkerId("start")]!.position.latitude,
+                    markers[const MarkerId("start")]!.position.longitude),
+                zoom: 13)));
+      } else if (markers.containsKey(const MarkerId("end"))) {
+        mapController?.animateCamera(CameraUpdate.newCameraPosition(
+            CameraPosition(
+                target: LatLng(
+                    markers[const MarkerId("end")]!.position.latitude,
+                    markers[const MarkerId("end")]!.position.longitude),
+                zoom: 13)));
+      }
+    } else if (markers.length == 2) {
+      double lat = (markers[const MarkerId("start")]!.position.latitude +
+              markers[const MarkerId("end")]!.position.latitude) /
+          2.0;
+      double lng = (markers[const MarkerId("start")]!.position.longitude +
+              markers[const MarkerId("end")]!.position.longitude) /
+          2.0;
+      LatLng middle = LatLng(lat, lng);
+      double distanceInKM = Geolocator.distanceBetween(
+              markers[const MarkerId("start")]!.position.latitude,
+              markers[const MarkerId("start")]!.position.longitude,
+              markers[const MarkerId("end")]!.position.latitude,
+              markers[const MarkerId("end")]!.position.longitude) /
+          1000;
+      mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(middle.latitude, middle.longitude),
+            zoom: distanceInKM / 35,
+          ),
+        ),
+      );
+    }
+  }
+
+// Will set the location, location text, maker details, and camera based on focus
   void setLocation(GeoPoint location, PlaceIdDetails locationDetails) {
     setState(() {
       if (startLocationFocusNode.hasFocus) {
@@ -188,31 +214,28 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
         startLocationTextController.text = locationDetails.name!;
         String locationName = locationDetails.name!;
         startMarker = Marker(
-          markerId: MarkerId(locationName),
+          markerId: const MarkerId("start"),
           position: LatLng(location.latitude, location.longitude),
+          infoWindow: InfoWindow(title: locationName),
         );
-        map!.markers.add(startMarker);
-        mapController?.animateCamera(CameraUpdate.newCameraPosition(
-            CameraPosition(
-                target: LatLng(location.latitude, location.longitude), zoom: 17)
-            //17 is new zoom level
-            ));
-        ;
+        setState(() {
+          markers[startMarker.markerId] = startMarker;
+        });
       } else {
         destination = location;
         destinationTextController.text = locationDetails.name!;
         String locationName = locationDetails.name!;
         destinationMarker = Marker(
-            markerId: MarkerId(locationName),
-            position: LatLng(location.latitude, location.longitude));
-        map!.markers.add(destinationMarker);
+          markerId: const MarkerId("end"),
+          position: LatLng(location.latitude, location.longitude),
+          infoWindow: InfoWindow(title: locationName),
+        );
+        setState(() {
+          markers[destinationMarker.markerId] = destinationMarker;
+        });
       }
       locationPredictionOpen = false;
-      mapController?.animateCamera(CameraUpdate.newCameraPosition(
-          CameraPosition(
-              target: LatLng(location.latitude, location.longitude), zoom: 17)
-          //17 is new zoom level
-          ));
+      animateCamera();
     });
   }
 
@@ -236,7 +259,26 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                   child: Container(
                     height: MediaQuery.of(context).size.height * 1,
                     //Maps Widget
-                    child: map,
+                    child: GoogleMap(
+                      onMapCreated: (controller) {
+                        //method called when map is created
+                        setState(
+                          () {
+                            mapController = controller;
+                          },
+                        );
+                        animateCamera();
+                      },
+                      myLocationEnabled: true,
+                      scrollGesturesEnabled: true,
+                      myLocationButtonEnabled: false,
+                      zoomControlsEnabled: true,
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(
+                            userLocation!.latitude, userLocation!.longitude),
+                      ),
+                      markers: Set<Marker>.of(markers.values),
+                    ),
                   ),
                 ),
                 Column(
@@ -263,12 +305,17 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                             onChanged: (value) {
                               startLocation = GeoPoint(0, 0);
                               if (value.isEmpty) {
-                                setState(() {
-                                  locationPredictionOpen = false;
-                                  startLocation = const GeoPoint(0, 0);
-                                  startMarker =
-                                      const Marker(markerId: MarkerId("no"));
-                                });
+                                setState(
+                                  () {
+                                    locationPredictionOpen = false;
+                                    startLocation = const GeoPoint(0, 0);
+                                    if (markers
+                                        .containsKey(const MarkerId("start"))) {
+                                      markers.remove(const MarkerId("start"));
+                                    }
+                                  },
+                                );
+                                animateCamera();
                               }
                               if (debounce?.isActive ?? false) {
                                 debounce!.cancel();
@@ -315,12 +362,17 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                             onChanged: (value) {
                               destination = GeoPoint(0, 0);
                               if (value.isEmpty) {
-                                setState(() {
-                                  locationPredictionOpen = false;
-                                  destination = const GeoPoint(0, 0);
-                                  destinationMarker =
-                                      Marker(markerId: MarkerId("no"));
-                                });
+                                setState(
+                                  () {
+                                    locationPredictionOpen = false;
+                                    destination = const GeoPoint(0, 0);
+                                    if (markers
+                                        .containsKey(const MarkerId("end"))) {
+                                      markers.remove(const MarkerId("end"));
+                                    }
+                                  },
+                                );
+                                animateCamera();
                               }
                               if (debounce?.isActive ?? false) {
                                 debounce!.cancel();
@@ -336,10 +388,12 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                                   List<AutoCompletePrediction>
                                       placePredictions =
                                       await placeAutoComplete(value);
-                                  setState(() {
-                                    destinationPredictions = placePredictions;
-                                    locationPredictionOpen = true;
-                                  });
+                                  setState(
+                                    () {
+                                      destinationPredictions = placePredictions;
+                                      locationPredictionOpen = true;
+                                    },
+                                  );
                                 }
                               });
                             }),
