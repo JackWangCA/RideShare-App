@@ -93,6 +93,7 @@ class _SignInPageState extends State<SignInPage> {
                 //Email Field
                 const SizedBox(height: 25),
                 MyTextField(
+                  autofillHints: AutofillHints.username,
                   controller: emailController,
                   hintText: 'Email',
                   obscureText: false,
@@ -101,6 +102,7 @@ class _SignInPageState extends State<SignInPage> {
                 //Password Field
                 const SizedBox(height: 10),
                 MyTextField(
+                  autofillHints: AutofillHints.password,
                   controller: passwordController,
                   hintText: 'Password',
                   obscureText: true,

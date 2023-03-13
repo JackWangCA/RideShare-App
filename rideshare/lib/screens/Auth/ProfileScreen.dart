@@ -67,6 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
@@ -83,7 +84,6 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
-              const Spacer(),
               SizedBox(
                 width: 120.0,
                 height: 120.0,
@@ -125,26 +125,30 @@ class _ProfilePageState extends State<ProfilePage> {
               Text(user.isCollegeStudent
                   ? "College Student"
                   : "Not College Student"),
-              const Spacer(),
-              MyButton(
-                child: Text(
-                  "Edit Profile",
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: Theme.of(context).canvasColor, fontSize: 15.0),
-                ),
-                onTap: () {
-                  Navigator.of(context)
-                      .push(
-                    MaterialPageRoute(
-                      builder: (context) => EditProfilePage(),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: MyButton(
+                    child: Text(
+                      "Edit Profile",
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: Theme.of(context).canvasColor, fontSize: 15.0),
                     ),
-                  )
-                      .then((value) {
-                    setState(() {
-                      getData();
-                    });
-                  });
-                },
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(
+                        MaterialPageRoute(
+                          builder: (context) => EditProfilePage(),
+                        ),
+                      )
+                          .then((value) {
+                        setState(() {
+                          getData();
+                        });
+                      });
+                    },
+                  ),
+                ),
               ),
             ],
           ),

@@ -9,7 +9,10 @@ class Listing {
   double price;
   GeoPoint startLocation;
   GeoPoint destination;
+  String startLocationText;
+  String destinationText;
   String description;
+  String uuid;
 
   Listing({
     this.uid = "",
@@ -19,7 +22,10 @@ class Listing {
     this.price = 0,
     this.startLocation = const GeoPoint(0, 0),
     this.destination = const GeoPoint(0, 0),
+    this.startLocationText = "",
+    this.destinationText = "",
     this.description = "",
+    this.uuid = "",
   });
 
   Map<String, dynamic> toJson() => {
@@ -30,6 +36,27 @@ class Listing {
         "price": price,
         "startLocation": startLocation,
         "destination": destination,
-        "listings": description,
+        "startLocationText": startLocationText,
+        "destinationText": destinationText,
+        "description": description,
+        "uuid": uuid,
       };
+
+  static Listing fromSnap(DocumentSnapshot snap) {
+    var snapshot = snap.data() as Map<String, dynamic>;
+
+    return Listing(
+      uid: snapshot["uid"],
+      listingType: snapshot["listingType"],
+      departTime: snapshot["departTime"],
+      publishedTime: snapshot["publishedTime"],
+      price: snapshot["price"],
+      startLocation: snapshot["startLocation"],
+      destination: snapshot["phoneNumber"],
+      startLocationText: snapshot["startLocationText"],
+      destinationText: snapshot["destinationText"],
+      description: snapshot["description"],
+      uuid: snapshot["description"],
+    );
+  }
 }

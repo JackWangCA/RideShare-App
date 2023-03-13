@@ -1,7 +1,6 @@
 class PlaceIdDetails {
-  final String? name;
-
-  final Geometry? geometry;
+  String? name;
+  Geometry? geometry;
 
   // final String? placeId;
 

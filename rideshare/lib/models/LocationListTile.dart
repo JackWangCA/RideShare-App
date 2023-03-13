@@ -15,25 +15,21 @@ class LocationListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListTile(
-          onTap: onTap,
-          horizontalTitleGap: 0,
-          leading: const Icon(Icons.pin_drop_rounded),
-          title: Text(
-            location,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ),
-        // Divider(
-        //   height: 2,
-        //   thickness: 2,
-        //   color: Theme.of(context).hintColor,
-        // ),
-      ],
+    return ListTile(
+      onTap: onTap,
+      // horizontalTitleGap: 0,
+      leading: const Icon(Icons.pin_drop_rounded),
+      title: Text(
+        location,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
     );
+    // Divider(
+    //   height: 2,
+    //   thickness: 2,
+    //   color: Theme.of(context).hintColor,
+    // ),
   }
 }

@@ -6,6 +6,7 @@ class MyLocationTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final TextInputType inputType;
+  final FocusNode focusNode;
 
   const MyLocationTextField({
     super.key,
@@ -14,6 +15,7 @@ class MyLocationTextField extends StatelessWidget {
     required this.obscureText,
     required this.inputType,
     required this.onChanged,
+    required this.focusNode,
   });
 
   @override
@@ -21,12 +23,15 @@ class MyLocationTextField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: TextField(
+        focusNode: focusNode,
+        autocorrect: false,
         showCursor: true,
         cursorColor: Theme.of(context).dividerColor,
         onChanged: onChanged,
         keyboardType: inputType,
         obscureText: obscureText,
         controller: controller,
+        autofillHints: const [AutofillHints.addressCityAndState],
         decoration: InputDecoration(
           suffixIcon: IconButton(
             splashRadius: 5.0,

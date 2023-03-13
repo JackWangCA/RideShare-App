@@ -161,6 +161,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
           "Edit Profile",
@@ -172,7 +173,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
-              const Spacer(),
               GestureDetector(
                 onTap: () async {
                   image = await imagePicker.pickImage(
@@ -202,12 +202,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 10.0,
-              ),
               const SizedBox(height: 25),
               //First Name Field
               MyTextField(
+                autofillHints: AutofillHints.givenName,
                 controller: firstNameController,
                 hintText: 'First Name',
                 obscureText: false,
@@ -216,6 +214,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               //Last Name Field
               const SizedBox(height: 10),
               MyTextField(
+                autofillHints: AutofillHints.familyName,
                 controller: lastNameController,
                 hintText: 'Last Name',
                 obscureText: false,
@@ -228,39 +227,44 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 obscureText: false,
                 inputType: TextInputType.text,
               ),
-              const SizedBox(
-                height: 10.0,
-              ),
-              const Spacer(),
-              MyButton(
-                child: isLoading
-                    ? const CircularProgressIndicator(
-                        strokeWidth: 4.0,
-                        color: Colors.grey,
-                      )
-                    : Text(
-                        "Save Changes",
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            color: Theme.of(context).canvasColor,
-                            fontSize: 15.0),
-                      ),
-                onTap: () async {
-                  try {
-                    await FirebaseAuth.instance.currentUser!.reload();
-                    String result = await saveChanges();
-                    if (result != "success") {
-                      showMessage(result);
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  } catch (e) {
-                    if (e.toString() ==
-                        "[firebase_auth/network-request-failed] Network error (such as timeout, interrupted connection or unreachable host) has occurred.") {
-                      showMessage(
-                          "No internet connection, please try again later.");
-                    }
-                  }
-                },
+              const SizedBox(height: 10),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: MyButton(
+                    child: isLoading
+                        ? const CircularProgressIndicator(
+                            strokeWidth: 4.0,
+                            color: Colors.grey,
+                          )
+                        : Text(
+                            "Save Changes",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(
+                                    color: Theme.of(context).canvasColor,
+                                    fontSize: 15.0),
+                          ),
+                    onTap: () async {
+                      try {
+                        await FirebaseAuth.instance.currentUser!.reload();
+                        String result = await saveChanges();
+                        if (result != "success") {
+                          showMessage(result);
+                        } else {
+                          Navigator.pop(context);
+                        }
+                      } catch (e) {
+                        if (e.toString() ==
+                            "[firebase_auth/network-request-failed] Network error (such as timeout, interrupted connection or unreachable host) has occurred.") {
+                          showMessage(
+                              "No internet connection, please try again later.");
+                        }
+                      }
+                    },
+                  ),
+                ),
               ),
             ],
           ),

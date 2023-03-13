@@ -5,6 +5,7 @@ class MyTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final TextInputType inputType;
+  final String autofillHints;
 
   const MyTextField({
     super.key,
@@ -12,6 +13,7 @@ class MyTextField extends StatelessWidget {
     required this.hintText,
     required this.obscureText,
     required this.inputType,
+    this.autofillHints = "no",
   });
 
   @override
@@ -22,6 +24,7 @@ class MyTextField extends StatelessWidget {
         keyboardType: inputType,
         obscureText: obscureText,
         controller: controller,
+        autofillHints: [autofillHints],
         decoration: InputDecoration(
           hintText: hintText,
           enabledBorder: OutlineInputBorder(

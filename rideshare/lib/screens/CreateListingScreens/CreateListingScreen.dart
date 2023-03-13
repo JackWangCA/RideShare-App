@@ -33,6 +33,7 @@ class _CreateListingPageState extends State<CreateListingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
           'Plan Your Ride',
@@ -86,13 +87,15 @@ class _CreateListingPageState extends State<CreateListingPage> {
                     publishedTime: selectedDateTime,
                   );
                   listing.uid = authUser.uid;
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ChooseLocationPage(
-                        listing: listing,
+                  if (mounted) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ChooseLocationPage(
+                          listing: listing,
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 },
                 child: Text(
                   "Choose Locations",

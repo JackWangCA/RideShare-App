@@ -76,6 +76,8 @@ class AuthService {
             .doc(cred.user!.uid)
             .set(user.toJson());
 
+        await cred.user!.sendEmailVerification();
+
         result = "success";
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
@@ -264,6 +266,7 @@ class AuthService {
         user.isCollegeStudent = isCollegeStudent;
         try {
           await _auth.currentUser!.updateEmail(newEmail);
+          await _auth.currentUser!.sendEmailVerification();
           await _firestore.collection("users").doc(user.uid).set(user.toJson());
           result = "success";
         } on FirebaseAuthException catch (e) {

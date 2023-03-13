@@ -93,6 +93,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 height: 10.0,
               ),
               MyTextField(
+                autofillHints: AutofillHints.username,
                 controller: emailController,
                 hintText: 'Email',
                 obscureText: false,

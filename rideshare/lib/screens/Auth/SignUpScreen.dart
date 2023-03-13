@@ -120,6 +120,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 //First Name Field
                 const SizedBox(height: 25),
                 MyTextField(
+                  autofillHints: AutofillHints.givenName,
                   controller: firstNameController,
                   hintText: 'First Name',
                   obscureText: false,
@@ -129,6 +130,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 //Last Name Field
                 const SizedBox(height: 10),
                 MyTextField(
+                  autofillHints: AutofillHints.familyName,
                   controller: lastNameController,
                   hintText: 'Last Name',
                   obscureText: false,
@@ -138,6 +140,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 //Email Field
                 const SizedBox(height: 10),
                 MyTextField(
+                  autofillHints: AutofillHints.newUsername,
                   controller: emailController,
                   hintText: 'Email',
                   obscureText: false,
@@ -147,6 +150,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 //Password Field
                 const SizedBox(height: 10),
                 MyTextField(
+                  autofillHints: AutofillHints.newPassword,
                   controller: passwordController,
                   hintText: 'Password',
                   obscureText: true,
@@ -156,6 +160,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 //Confirm Password Field
                 MyTextField(
+                  autofillHints: AutofillHints.newPassword,
                   controller: confirmPasswordController,
                   hintText: 'Confirm Password',
                   obscureText: true,

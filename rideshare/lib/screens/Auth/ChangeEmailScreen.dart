@@ -44,6 +44,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
           "Change Email Address",
@@ -78,6 +79,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                 height: 10.0,
               ),
               MyTextField(
+                autofillHints: AutofillHints.email,
                 controller: emailController,
                 hintText: 'New Email Address',
                 obscureText: false,
