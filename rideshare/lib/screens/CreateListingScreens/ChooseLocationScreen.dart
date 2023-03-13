@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -199,7 +200,7 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
         CameraUpdate.newCameraPosition(
           CameraPosition(
             target: LatLng(middle.latitude, middle.longitude),
-            zoom: distanceInKM / 35,
+            zoom: 16 - log(distanceInKM * 1.6) / log(2),
           ),
         ),
       );
