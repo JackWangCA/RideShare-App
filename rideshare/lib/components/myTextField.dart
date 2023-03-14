@@ -5,26 +5,34 @@ class MyTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final TextInputType inputType;
-  final String autofillHints;
+  String? autofillHints;
+  int? maxLines;
+  int? maxLength;
 
-  const MyTextField({
+  MyTextField({
     super.key,
     required this.controller,
     required this.hintText,
     required this.obscureText,
     required this.inputType,
-    this.autofillHints = "no",
+    this.autofillHints,
+    this.maxLines,
+    this.maxLength,
   });
 
   @override
   Widget build(BuildContext context) {
+    String autofill = "no";
+    if (autofillHints != "no" && autofillHints != null) {
+      autofill = autofillHints!;
+    }
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: TextField(
         keyboardType: inputType,
         obscureText: obscureText,
         controller: controller,
-        autofillHints: [autofillHints],
+        autofillHints: [autofill],
         decoration: InputDecoration(
           hintText: hintText,
           enabledBorder: OutlineInputBorder(

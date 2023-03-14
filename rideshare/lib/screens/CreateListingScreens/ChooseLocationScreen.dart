@@ -62,6 +62,7 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
   void initState() {
     super.initState();
     listing = widget.listing;
+    animateCamera();
     determineLocation();
     startLocationFocusNode = FocusNode();
     destinationFocusNode = FocusNode();
@@ -300,6 +301,7 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                         );
                         animateCamera();
                       },
+                      zoomControlsEnabled: false,
                       myLocationEnabled: true,
                       scrollGesturesEnabled: true,
                       myLocationButtonEnabled: false,
@@ -311,306 +313,304 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                     ),
                   ),
                 ),
-                Column(
-                  children: [
-                    const SizedBox(
-                      height: 10.0,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Focus(
-                        onFocusChange: (value) {
-                          if (!startLocationFocusNode.hasFocus) {
-                            setState(() {
-                              locationPredictionOpen = false;
-                            });
-                          }
-                        },
-                        child: MyLocationTextField(
-                            focusNode: startLocationFocusNode,
-                            controller: startLocationTextController,
-                            hintText: "Start",
-                            obscureText: false,
-                            inputType: TextInputType.streetAddress,
-                            onChanged: (value) {
-                              startLocation = const GeoPoint(0, 0);
-                              if (value.isEmpty) {
-                                setState(
-                                  () {
-                                    locationPredictionOpen = false;
-                                    startLocation = const GeoPoint(0, 0);
-                                    if (markers
-                                        .containsKey(const MarkerId("start"))) {
-                                      markers.remove(const MarkerId("start"));
-                                    }
-                                  },
-                                );
-                                animateCamera();
-                              }
-                              if (debounce?.isActive ?? false) {
-                                debounce!.cancel();
-                              }
-                              //Only send request after user finishes typing, saves some money
-                              debounce = Timer(
-                                  const Duration(milliseconds: 1000), () async {
-                                if (value.isEmpty) {
-                                  setState(() {
-                                    locationPredictionOpen = false;
-                                  });
-                                } else {
-                                  List<AutoCompletePrediction>
-                                      placePredictions =
-                                      await placeAutoComplete(value);
-                                  setState(() {
-                                    startLocationPredictions = placePredictions;
-                                    locationPredictionOpen = true;
-                                  });
-                                }
-                              });
-                            }),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10.0,
-                    ),
-                    locationPredictionOpen && startLocationFocusNode.hasFocus
-                        ? Flexible(
-                            fit: FlexFit.loose,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).canvasColor,
-                                  borderRadius: BorderRadius.circular(15.0),
-                                ),
-                                child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  itemCount: startLocationFocusNode.hasFocus
-                                      ? startLocationPredictions.length
-                                      : destinationPredictions.length,
-                                  itemBuilder: (context, index) =>
-                                      LocationListTile(
-                                    location: startLocationFocusNode.hasFocus
-                                        ? startLocationPredictions
-                                            .elementAt(index)
-                                            .description!
-                                        : destinationPredictions
-                                            .elementAt(index)
-                                            .description!,
-                                    onTap: () async {
-                                      setState(() {
-                                        if (startLocationFocusNode.hasFocus) {
-                                          startLocationPlaceId =
-                                              startLocationPredictions
-                                                  .elementAt(index)
-                                                  .placeId!;
-                                        } else {
-                                          destinationPlaceId =
-                                              destinationPredictions
-                                                  .elementAt(index)
-                                                  .placeId!;
-                                        }
-                                      });
-                                      PlaceIdDetails locationDetails =
-                                          startLocationFocusNode.hasFocus
-                                              ? await getDetailsFromPlaceId(
-                                                  startLocationPlaceId)
-                                              : await getDetailsFromPlaceId(
-                                                  destinationPlaceId);
-                                      GeoPoint location = GeoPoint(
-                                          locationDetails
-                                              .geometry!.location!.lat!,
-                                          locationDetails
-                                              .geometry!.location!.lng!);
-                                      setLocation(location, locationDetails);
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        : Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Focus(
-                              onFocusChange: (value) {
-                                if (!destinationFocusNode.hasFocus) {
-                                  setState(() {
-                                    locationPredictionOpen = false;
-                                  });
-                                }
-                              },
-                              child: MyLocationTextField(
-                                  focusNode: destinationFocusNode,
-                                  controller: destinationTextController,
-                                  hintText: "End",
-                                  obscureText: false,
-                                  inputType: TextInputType.streetAddress,
-                                  onChanged: (value) {
-                                    destination = const GeoPoint(0, 0);
-                                    if (value.isEmpty) {
-                                      setState(
-                                        () {
-                                          locationPredictionOpen = false;
-                                          destination = const GeoPoint(0, 0);
-                                          if (markers.containsKey(
-                                              const MarkerId("end"))) {
-                                            markers
-                                                .remove(const MarkerId("end"));
-                                          }
-                                        },
-                                      );
-                                      animateCamera();
-                                    }
-                                    if (debounce?.isActive ?? false) {
-                                      debounce!.cancel();
-                                    }
-                                    //Only send request after user finishes typing, saves some money
-                                    debounce = Timer(
-                                        const Duration(milliseconds: 1000),
-                                        () async {
-                                      if (value.isEmpty) {
-                                        setState(() {
-                                          locationPredictionOpen = false;
-                                        });
-                                      } else {
-                                        List<AutoCompletePrediction>
-                                            placePredictions =
-                                            await placeAutoComplete(value);
-                                        setState(
-                                          () {
-                                            destinationPredictions =
-                                                placePredictions;
-                                            locationPredictionOpen = true;
-                                          },
-                                        );
-                                      }
-                                    });
-                                  }),
-                            ),
-                          ),
-                    const SizedBox(
-                      height: 5.0,
-                    ),
-                    locationPredictionOpen && destinationFocusNode.hasFocus
-                        ? Flexible(
-                            fit: FlexFit.loose,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).canvasColor,
-                                  borderRadius: BorderRadius.circular(15.0),
-                                ),
-                                child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  itemCount: startLocationFocusNode.hasFocus
-                                      ? startLocationPredictions.length
-                                      : destinationPredictions.length,
-                                  itemBuilder: (context, index) =>
-                                      LocationListTile(
-                                    location: startLocationFocusNode.hasFocus
-                                        ? startLocationPredictions
-                                            .elementAt(index)
-                                            .description!
-                                        : destinationPredictions
-                                            .elementAt(index)
-                                            .description!,
-                                    onTap: () async {
-                                      setState(() {
-                                        if (startLocationFocusNode.hasFocus) {
-                                          startLocationPlaceId =
-                                              startLocationPredictions
-                                                  .elementAt(index)
-                                                  .placeId!;
-                                        } else {
-                                          destinationPlaceId =
-                                              destinationPredictions
-                                                  .elementAt(index)
-                                                  .placeId!;
-                                        }
-                                      });
-                                      PlaceIdDetails locationDetails =
-                                          startLocationFocusNode.hasFocus
-                                              ? await getDetailsFromPlaceId(
-                                                  startLocationPlaceId)
-                                              : await getDetailsFromPlaceId(
-                                                  destinationPlaceId);
-                                      GeoPoint location = GeoPoint(
-                                          locationDetails
-                                              .geometry!.location!.lat!,
-                                          locationDetails
-                                              .geometry!.location!.lng!);
-                                      setLocation(location, locationDetails);
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        : const SizedBox(),
-                  ],
-                ),
                 SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: MyButton(
-                        child: Text(
-                          "Confirm Locations",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge!
-                              .copyWith(
-                                  color: Theme.of(context).canvasColor,
-                                  fontSize: 15.0),
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      children: [
+                        Focus(
+                          onFocusChange: (value) {
+                            if (!startLocationFocusNode.hasFocus) {
+                              setState(() {
+                                locationPredictionOpen = false;
+                              });
+                            }
+                          },
+                          child: MyLocationTextField(
+                              focusNode: startLocationFocusNode,
+                              controller: startLocationTextController,
+                              hintText: "Start",
+                              obscureText: false,
+                              inputType: TextInputType.streetAddress,
+                              onChanged: (value) {
+                                startLocation = const GeoPoint(0, 0);
+                                if (value.isEmpty) {
+                                  setState(
+                                    () {
+                                      locationPredictionOpen = false;
+                                      startLocation = const GeoPoint(0, 0);
+                                      if (markers.containsKey(
+                                          const MarkerId("start"))) {
+                                        markers.remove(const MarkerId("start"));
+                                      }
+                                    },
+                                  );
+                                  animateCamera();
+                                }
+                                if (debounce?.isActive ?? false) {
+                                  debounce!.cancel();
+                                }
+                                //Only send request after user finishes typing, saves some money
+                                debounce =
+                                    Timer(const Duration(milliseconds: 1000),
+                                        () async {
+                                  if (value.isEmpty) {
+                                    setState(() {
+                                      locationPredictionOpen = false;
+                                    });
+                                  } else {
+                                    List<AutoCompletePrediction>
+                                        placePredictions =
+                                        await placeAutoComplete(value);
+                                    setState(() {
+                                      startLocationPredictions =
+                                          placePredictions;
+                                      locationPredictionOpen = true;
+                                    });
+                                  }
+                                });
+                              }),
                         ),
-                        onTap: () {
-                          // if ((startLocation!.latitude == 0 &&
-                          //         startLocation!.longitude == 0) ||
-                          //     (destination!.latitude == 0 &&
-                          //         destination!.longitude == 0)) {
-                          //   showMessage("Please select your start location");
-                          // }
-                          if (startLocationTextController.text.trim().isEmpty ||
-                              destinationTextController.text.trim().isEmpty) {
-                            showMessage(
-                                "Please enter both your start location and destination");
-                          } else {
-                            listing.startLocation = GeoPoint(
-                                startLocation!.latitude,
-                                startLocation!.latitude);
-                            listing.destination = GeoPoint(
-                                destination!.latitude, destination!.longitude);
-                            listing.startLocationText =
-                                startLocationTextController.text.trim();
-                            listing.destinationText =
-                                destinationTextController.text.trim();
-
-                            // print(listing.startLocation.latitude);
-                            // print(listing.startLocation.longitude);
-                            // print(listing.destination.latitude);
-                            // print(listing.destination.longitude);
-                            // print(listing.startLocationText);
-                            // print(listing.destinationText);
-                            // print(listing.departTime.toLocal());
-                            if (mounted) {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => FinalizeDetailsPage(
-                                    listing: listing,
+                        const SizedBox(
+                          height: 10.0,
+                        ),
+                        locationPredictionOpen &&
+                                startLocationFocusNode.hasFocus
+                            ? Flexible(
+                                fit: FlexFit.loose,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).canvasColor,
+                                      borderRadius: BorderRadius.circular(15.0),
+                                    ),
+                                    child: ListView.builder(
+                                      padding: EdgeInsets.zero,
+                                      shrinkWrap: true,
+                                      itemCount: startLocationFocusNode.hasFocus
+                                          ? startLocationPredictions.length
+                                          : destinationPredictions.length,
+                                      itemBuilder: (context, index) =>
+                                          LocationListTile(
+                                        location:
+                                            startLocationFocusNode.hasFocus
+                                                ? startLocationPredictions
+                                                    .elementAt(index)
+                                                    .description!
+                                                : destinationPredictions
+                                                    .elementAt(index)
+                                                    .description!,
+                                        onTap: () async {
+                                          setState(() {
+                                            if (startLocationFocusNode
+                                                .hasFocus) {
+                                              startLocationPlaceId =
+                                                  startLocationPredictions
+                                                      .elementAt(index)
+                                                      .placeId!;
+                                            } else {
+                                              destinationPlaceId =
+                                                  destinationPredictions
+                                                      .elementAt(index)
+                                                      .placeId!;
+                                            }
+                                          });
+                                          PlaceIdDetails locationDetails =
+                                              startLocationFocusNode.hasFocus
+                                                  ? await getDetailsFromPlaceId(
+                                                      startLocationPlaceId)
+                                                  : await getDetailsFromPlaceId(
+                                                      destinationPlaceId);
+                                          GeoPoint location = GeoPoint(
+                                              locationDetails
+                                                  .geometry!.location!.lat!,
+                                              locationDetails
+                                                  .geometry!.location!.lng!);
+                                          setLocation(
+                                              location, locationDetails);
+                                        },
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              );
-                            }
-                          }
-                        },
-                      ),
+                              )
+                            : Focus(
+                                onFocusChange: (value) {
+                                  if (!destinationFocusNode.hasFocus) {
+                                    setState(() {
+                                      locationPredictionOpen = false;
+                                    });
+                                  }
+                                },
+                                child: MyLocationTextField(
+                                    focusNode: destinationFocusNode,
+                                    controller: destinationTextController,
+                                    hintText: "End",
+                                    obscureText: false,
+                                    inputType: TextInputType.streetAddress,
+                                    onChanged: (value) {
+                                      destination = const GeoPoint(0, 0);
+                                      if (value.isEmpty) {
+                                        setState(
+                                          () {
+                                            locationPredictionOpen = false;
+                                            destination = const GeoPoint(0, 0);
+                                            if (markers.containsKey(
+                                                const MarkerId("end"))) {
+                                              markers.remove(
+                                                  const MarkerId("end"));
+                                            }
+                                          },
+                                        );
+                                        animateCamera();
+                                      }
+                                      if (debounce?.isActive ?? false) {
+                                        debounce!.cancel();
+                                      }
+                                      //Only send request after user finishes typing, saves some money
+                                      debounce = Timer(
+                                          const Duration(milliseconds: 1000),
+                                          () async {
+                                        if (value.isEmpty) {
+                                          setState(() {
+                                            locationPredictionOpen = false;
+                                          });
+                                        } else {
+                                          List<AutoCompletePrediction>
+                                              placePredictions =
+                                              await placeAutoComplete(value);
+                                          setState(
+                                            () {
+                                              destinationPredictions =
+                                                  placePredictions;
+                                              locationPredictionOpen = true;
+                                            },
+                                          );
+                                        }
+                                      });
+                                    }),
+                              ),
+                        const SizedBox(
+                          height: 5.0,
+                        ),
+                        locationPredictionOpen && destinationFocusNode.hasFocus
+                            ? Flexible(
+                                fit: FlexFit.loose,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).canvasColor,
+                                      borderRadius: BorderRadius.circular(15.0),
+                                    ),
+                                    child: ListView.builder(
+                                      padding: EdgeInsets.zero,
+                                      shrinkWrap: true,
+                                      itemCount: startLocationFocusNode.hasFocus
+                                          ? startLocationPredictions.length
+                                          : destinationPredictions.length,
+                                      itemBuilder: (context, index) =>
+                                          LocationListTile(
+                                        location:
+                                            startLocationFocusNode.hasFocus
+                                                ? startLocationPredictions
+                                                    .elementAt(index)
+                                                    .description!
+                                                : destinationPredictions
+                                                    .elementAt(index)
+                                                    .description!,
+                                        onTap: () async {
+                                          setState(() {
+                                            if (startLocationFocusNode
+                                                .hasFocus) {
+                                              startLocationPlaceId =
+                                                  startLocationPredictions
+                                                      .elementAt(index)
+                                                      .placeId!;
+                                            } else {
+                                              destinationPlaceId =
+                                                  destinationPredictions
+                                                      .elementAt(index)
+                                                      .placeId!;
+                                            }
+                                          });
+                                          PlaceIdDetails locationDetails =
+                                              startLocationFocusNode.hasFocus
+                                                  ? await getDetailsFromPlaceId(
+                                                      startLocationPlaceId)
+                                                  : await getDetailsFromPlaceId(
+                                                      destinationPlaceId);
+                                          GeoPoint location = GeoPoint(
+                                              locationDetails
+                                                  .geometry!.location!.lat!,
+                                              locationDetails
+                                                  .geometry!.location!.lng!);
+                                          setLocation(
+                                              location, locationDetails);
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox(),
+                        const Spacer(),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: MyButton(
+                            child: Text(
+                              "Confirm Locations",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(
+                                      color: Theme.of(context).canvasColor,
+                                      fontSize: 15.0),
+                            ),
+                            onTap: () {
+                              if ((startLocation!.latitude == 0 &&
+                                      startLocation!.longitude == 0) ||
+                                  (destination!.latitude == 0 &&
+                                      destination!.longitude == 0)) {
+                                showMessage(
+                                    "Please select your start location");
+                              }
+                              if (startLocationTextController.text
+                                      .trim()
+                                      .isEmpty ||
+                                  destinationTextController.text
+                                      .trim()
+                                      .isEmpty) {
+                                showMessage(
+                                    "Please enter both your start location and destination");
+                              } else {
+                                listing.startLocation = GeoPoint(
+                                    startLocation!.latitude,
+                                    startLocation!.latitude);
+                                listing.destination = GeoPoint(
+                                    destination!.latitude,
+                                    destination!.longitude);
+                                listing.startLocationText =
+                                    startLocationTextController.text.trim();
+                                listing.destinationText =
+                                    destinationTextController.text.trim();
+                                if (mounted) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => FinalizeDetailsPage(
+                                        listing: listing,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

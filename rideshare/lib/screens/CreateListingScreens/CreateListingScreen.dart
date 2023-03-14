@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:rideshare/components/myButton.dart';
 import 'package:rideshare/models/listing.dart';
 import 'package:rideshare/screens/CreateListingScreens/ChooseLocationScreen.dart';
+import 'package:uuid/uuid.dart';
 
 class CreateListingPage extends StatefulWidget {
   const CreateListingPage({super.key});
@@ -13,13 +14,15 @@ class CreateListingPage extends StatefulWidget {
 }
 
 class _CreateListingPageState extends State<CreateListingPage> {
+  var uuid = Uuid();
+  String listingId = "";
   DateTime selectedDateTime = DateTime.now().toUtc();
   final authUser = FirebaseAuth.instance.currentUser!;
 
   @override
   void initState() {
     super.initState();
-
+    listingId = uuid.v4();
     selectedDateTime = DateTime.now().toUtc();
   }
 
@@ -40,9 +43,9 @@ class _CreateListingPageState extends State<CreateListingPage> {
           style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SafeArea(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
           child: Column(
             children: <Widget>[
               const SizedBox(
@@ -83,10 +86,11 @@ class _CreateListingPageState extends State<CreateListingPage> {
                 onTap: () {
                   selectedDateTime = latestTime();
                   Listing listing = Listing(
-                    departTime: selectedDateTime,
-                    publishedTime: selectedDateTime,
+                    departTime: selectedDateTime.toUtc(),
+                    publishedTime: selectedDateTime.toUtc(),
                   );
                   listing.uid = authUser.uid;
+                  listing.uuid = listingId;
                   if (mounted) {
                     Navigator.of(context).push(
                       MaterialPageRoute(

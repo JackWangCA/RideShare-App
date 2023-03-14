@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:rideshare/resources/AuthService.dart';
 import 'package:rideshare/screens/Auth/ProfileScreen.dart';
+import 'package:rideshare/screens/MyListingsScreen.dart';
 import 'package:rideshare/screens/SettingScreen.dart';
 import 'package:rideshare/models/user.dart' as model;
 
@@ -234,7 +235,11 @@ class _HomePageState extends State<HomePage> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         onTap: () {
-                          null;
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => MyListingsPage(),
+                            ),
+                          );
                         },
                       ),
 
