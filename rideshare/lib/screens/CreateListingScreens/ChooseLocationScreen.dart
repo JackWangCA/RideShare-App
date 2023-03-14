@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,7 @@ import '../../resources/AutocompletePrediction.dart';
 import '../../resources/NetworkService.dart';
 import '../../resources/PlaceAutoCompleteResponse.dart';
 import '../../resources/PlaceIdResponse.dart';
+import 'FinalizeDetailsScreen.dart';
 
 class ChooseLocationPage extends StatefulWidget {
   final Listing listing;
@@ -37,14 +40,15 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
   GeoPoint? destination = const GeoPoint(0, 0);
   Marker startMarker = const Marker(markerId: MarkerId("startLocation"));
   Marker destinationMarker = const Marker(markerId: MarkerId("destination"));
+  String startLocationPlaceId = "";
+  String destinationPlaceId = "";
   GoogleMap? map;
   GoogleMapController? mapController;
+  // late BitmapDescriptor startIcon;
+  // late BitmapDescriptor endIcon;
 
   final startLocationTextController = TextEditingController();
   final destinationTextController = TextEditingController();
-
-  String startLocationPlaceId = "";
-  String destinationPlaceId = "";
 
   late FocusNode startLocationFocusNode;
   late FocusNode destinationFocusNode;
@@ -283,7 +287,7 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
               children: <Widget>[
                 Align(
                   alignment: const AlignmentDirectional(0, 0),
-                  child: Container(
+                  child: SizedBox(
                     height: MediaQuery.of(context).size.height * 1,
                     //Maps Widget
                     child: GoogleMap(
@@ -299,7 +303,6 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                       myLocationEnabled: true,
                       scrollGesturesEnabled: true,
                       myLocationButtonEnabled: false,
-                      zoomControlsEnabled: true,
                       initialCameraPosition: CameraPosition(
                         target: LatLng(
                             userLocation!.latitude, userLocation!.longitude),
@@ -330,7 +333,7 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                             obscureText: false,
                             inputType: TextInputType.streetAddress,
                             onChanged: (value) {
-                              startLocation = GeoPoint(0, 0);
+                              startLocation = const GeoPoint(0, 0);
                               if (value.isEmpty) {
                                 setState(
                                   () {
@@ -446,7 +449,7 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                                   obscureText: false,
                                   inputType: TextInputType.streetAddress,
                                   onChanged: (value) {
-                                    destination = GeoPoint(0, 0);
+                                    destination = const GeoPoint(0, 0);
                                     if (value.isEmpty) {
                                       setState(
                                         () {
@@ -588,12 +591,23 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                                 startLocationTextController.text.trim();
                             listing.destinationText =
                                 destinationTextController.text.trim();
-                            print(listing.startLocation.latitude);
-                            print(listing.startLocation.longitude);
-                            print(listing.destination.latitude);
-                            print(listing.destination.longitude);
-                            print(listing.startLocationText);
-                            print(listing.destinationText);
+
+                            // print(listing.startLocation.latitude);
+                            // print(listing.startLocation.longitude);
+                            // print(listing.destination.latitude);
+                            // print(listing.destination.longitude);
+                            // print(listing.startLocationText);
+                            // print(listing.destinationText);
+                            // print(listing.departTime.toLocal());
+                            if (mounted) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => FinalizeDetailsPage(
+                                    listing: listing,
+                                  ),
+                                ),
+                              );
+                            }
                           }
                         },
                       ),
