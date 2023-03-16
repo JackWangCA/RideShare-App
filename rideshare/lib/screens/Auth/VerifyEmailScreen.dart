@@ -130,28 +130,6 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         : Scaffold(
             appBar: AppBar(
               title: const Text("Verify Email"),
-              actions: [
-                IconButton(
-                  onPressed: () async {
-                    try {
-                      await FirebaseAuth.instance.currentUser!.reload();
-                    } catch (e) {
-                      if (e.toString() ==
-                          "[firebase_auth/network-request-failed] Network error (such as timeout, interrupted connection or unreachable host) has occurred.") {
-                        showMessage(
-                            "No internet connection, please try again later.");
-                      }
-                    }
-                    String result = await AuthService().deleteUser();
-                    if (result == "success") {
-                      AuthService().signOut();
-                    } else {
-                      showMessage(result);
-                    }
-                  },
-                  icon: const Icon(Icons.logout),
-                )
-              ],
             ),
             body: SafeArea(
               child: Padding(

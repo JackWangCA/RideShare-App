@@ -23,6 +23,7 @@ class _ProfilePageState extends State<ProfilePage> {
     firstName: "",
     lastName: "",
     listings: [],
+    savedListings: [],
   );
   // String uid = "";
   // String email = "";
@@ -47,12 +48,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
       setState(() {
         user = model.User.fromSnap(userSnap);
-        // uid = user.uid;
-        // email = user.email;
-        // bio = user.bio;
-        // firstName = user.firstName;
-        // lastName = user.lastName;
-        // photoUrl = user.photoUrl;
       });
 
       if (user.photoUrl.isEmpty) {

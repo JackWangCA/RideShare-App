@@ -10,6 +10,7 @@ class User {
   String lastName;
   String phoneNumber;
   List listings;
+  List savedListings;
   bool isCollegeStudent;
 
   User({
@@ -21,6 +22,7 @@ class User {
     required this.lastName,
     this.phoneNumber = "",
     required this.listings,
+    required this.savedListings,
     this.isCollegeStudent = false,
   });
 
@@ -36,6 +38,7 @@ class User {
       lastName: snapshot["lastName"],
       phoneNumber: snapshot["phoneNumber"],
       listings: snapshot["listings"],
+      savedListings: snapshot["savedListings"],
       isCollegeStudent: snapshot["isCollegeStudent"],
     );
   }
@@ -49,6 +52,7 @@ class User {
         "lastName": lastName,
         "phoneNumber": phoneNumber,
         "listings": listings,
+        "savedListings": savedListings,
         "isCollegeStudent": isCollegeStudent,
       };
 }

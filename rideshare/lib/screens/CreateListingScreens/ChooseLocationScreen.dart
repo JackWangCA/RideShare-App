@@ -571,13 +571,13 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                                       fontSize: 15.0),
                             ),
                             onTap: () {
-                              if ((startLocation!.latitude == 0 &&
-                                      startLocation!.longitude == 0) ||
-                                  (destination!.latitude == 0 &&
-                                      destination!.longitude == 0)) {
-                                showMessage(
-                                    "Please select your start location");
-                              }
+                              // if ((startLocation!.latitude == 0 &&
+                              //         startLocation!.longitude == 0) ||
+                              //     (destination!.latitude == 0 &&
+                              //         destination!.longitude == 0)) {
+                              //   showMessage(
+                              //       "Please select your start location");
+                              // }
                               if (startLocationTextController.text
                                       .trim()
                                       .isEmpty ||

@@ -47,6 +47,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     firstName: "",
     lastName: "",
     listings: [],
+    savedListings: [],
   );
 
   @override

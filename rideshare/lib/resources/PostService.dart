@@ -38,4 +38,18 @@ class PostService {
         await _firestore.collection('posts').doc(uuid).get();
     return Listing.fromSnap(documentSnapshot);
   }
+
+  Future<List<Listing>> getListingsFromUID(String uid) async {
+    List<Listing> myListings = [];
+    await _firestore.collection("users").doc(uid).get().then((value) {
+      // print(value.data());
+      List.from(value.data()!["listings"]).forEach((element) async {
+        print(element);
+        Listing curListing = await getPostFromUUID(element);
+        print(curListing.startLocationText);
+        myListings.add(curListing);
+      });
+    });
+    return myListings;
+  }
 }

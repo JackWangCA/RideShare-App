@@ -20,15 +20,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final authUser = FirebaseAuth.instance.currentUser!;
+  User authUser = FirebaseAuth.instance.currentUser!;
   late StreamSubscription internetSubscription;
   bool hasInternet = true;
   bool isLoading = false;
-  // String uid = "";
-  // String email = "";
-  // String firstName = "";
-  // String lastName = "";
-  // String photoUrl = "";
+  bool emailVerified = false;
+
   bool hasPhoto = false;
   model.User user = model.User(
     uid: "uid",
@@ -36,6 +33,7 @@ class _HomePageState extends State<HomePage> {
     firstName: "firstName",
     lastName: "lastName",
     listings: [],
+    savedListings: [],
   );
 
   @override
@@ -85,6 +83,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   getData() async {
+    authUser = FirebaseAuth.instance.currentUser!;
     try {
       var userSnap = await FirebaseFirestore.instance
           .collection('users')
@@ -92,13 +91,7 @@ class _HomePageState extends State<HomePage> {
           .get();
       setState(() {
         user = model.User.fromSnap(userSnap);
-        // uid = user.uid;
-        // email = user.email;
-        // firstName = user.firstName;
-        // lastName = user.lastName;
-        // photoUrl = user.photoUrl;
       });
-      // print(user.photoUrl);
 
       if (user.photoUrl.isEmpty) {
         setState(() {
@@ -183,7 +176,7 @@ class _HomePageState extends State<HomePage> {
                                   height: 10.0,
                                 ),
                                 Text(
-                                  user.firstName + " " + user.lastName,
+                                  "${user.firstName} ${user.lastName}",
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium!
@@ -223,7 +216,6 @@ class _HomePageState extends State<HomePage> {
                               getData();
                             });
                           });
-                          ;
                         },
                       ),
 
@@ -235,11 +227,17 @@ class _HomePageState extends State<HomePage> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         onTap: () {
-                          Navigator.of(context).push(
+                          Navigator.of(context)
+                              .push(
                             MaterialPageRoute(
                               builder: (context) => MyListingsPage(),
                             ),
-                          );
+                          )
+                              .then((value) {
+                            setState(() {
+                              getData();
+                            });
+                          });
                         },
                       ),
 
@@ -251,11 +249,17 @@ class _HomePageState extends State<HomePage> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         onTap: () {
-                          Navigator.of(context).push(
+                          Navigator.of(context)
+                              .push(
                             MaterialPageRoute(
                               builder: (context) => const SettingsPage(),
                             ),
-                          );
+                          )
+                              .then((value) {
+                            setState(() {
+                              getData();
+                            });
+                          });
                         },
                       ),
 

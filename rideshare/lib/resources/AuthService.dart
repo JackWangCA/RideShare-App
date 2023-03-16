@@ -67,6 +67,7 @@ class AuthService {
           firstName: firstName,
           lastName: lastName,
           listings: [],
+          savedListings: [],
           isCollegeStudent: isCollegeStudent,
         );
 
@@ -75,8 +76,6 @@ class AuthService {
             .collection("users")
             .doc(cred.user!.uid)
             .set(user.toJson());
-
-        await cred.user!.sendEmailVerification();
 
         result = "success";
       } on FirebaseAuthException catch (e) {
@@ -192,23 +191,20 @@ class AuthService {
     String result = "There has been some problems, try again later.";
     if (_auth.currentUser != null) {
       try {
-        String uid = _auth.currentUser!.uid;
         DocumentSnapshot documentSnapshot = await _firestore
             .collection('users')
             .doc(_auth.currentUser!.uid)
             .get();
         model.User user = model.User.fromSnap(documentSnapshot);
-        await _firestore
-            .collection('users')
-            .doc(_auth.currentUser!.uid)
-            .delete();
-
+        await _auth.currentUser!.delete();
+        await _firestore.collection('users').doc(user.uid).delete();
         if (user.photoUrl.isNotEmpty) {
-          Reference ref =
-              FirebaseStorage.instance.ref().child("Profile Images").child(uid);
+          Reference ref = FirebaseStorage.instance
+              .ref()
+              .child("Profile Images")
+              .child(user.uid);
           await ref.delete();
         }
-        await _auth.currentUser!.delete();
         result = "success";
       } catch (e) {
         result = e.toString();
