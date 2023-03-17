@@ -18,6 +18,10 @@ class MyListingsPage extends StatefulWidget {
 
 class _MyListingsPageState extends State<MyListingsPage> {
   bool isLoading = false;
+  bool allFetched = false;
+  DocumentSnapshot? lastDocument;
+  static const PAGE_SIZE = 7;
+
   User authUser = FirebaseAuth.instance.currentUser!;
   model.User user = model.User(
     uid: "uid",
@@ -29,9 +33,17 @@ class _MyListingsPageState extends State<MyListingsPage> {
   );
   List<Listing> listings = [];
 
-  getData() async {
+  Future<void> getData() async {
     authUser = FirebaseAuth.instance.currentUser!;
-
+    if (isLoading) {
+      return;
+    }
+    if (allFetched) {
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
     try {
       var userSnap = await FirebaseFirestore.instance
           .collection('users')
@@ -40,10 +52,27 @@ class _MyListingsPageState extends State<MyListingsPage> {
       setState(() {
         user = model.User.fromSnap(userSnap);
       });
-      var listingsFromUID =
-          await PostService().getListingsFromUID(authUser.uid);
+      Query<Map<String, dynamic>> query = await PostService().getDocuments();
+      if (lastDocument != null) {
+        query = query.startAfterDocument(lastDocument!).limit(PAGE_SIZE);
+      } else {
+        query = query.limit(PAGE_SIZE);
+      }
+      final List<Listing> pagedData = await query.get().then((value) async {
+        if (value.docs.isNotEmpty) {
+          lastDocument = value.docs.last;
+        } else {
+          lastDocument = null;
+        }
+        var result = await PostService().getListingsFromDocs(value.docs);
+        return result;
+      });
       setState(() {
-        listings = listingsFromUID;
+        listings.addAll(pagedData);
+        if (pagedData.length < PAGE_SIZE) {
+          allFetched = true;
+        }
+        isLoading = false;
       });
     } catch (e) {
       print(e.toString());
@@ -70,18 +99,14 @@ class _MyListingsPageState extends State<MyListingsPage> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      isLoading = true;
-    });
     try {
       getData();
     } catch (e) {
       showMessage(e.toString());
     }
-    setState(() {
-      isLoading = false;
-    });
   }
+
+  Future refresh() async {}
 
   @override
   void dispose() {
@@ -90,37 +115,52 @@ class _MyListingsPageState extends State<MyListingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoading
-        ? Scaffold(
-            appBar: AppBar(
-              title: Text("Loading",
-                  style: Theme.of(context).textTheme.titleLarge),
-            ),
-          )
-        : Scaffold(
-            appBar: AppBar(
-              title: Text("My Listings",
-                  style: Theme.of(context).textTheme.titleLarge),
-            ),
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: listings.length,
-                        itemBuilder: (context, index) {
-                          return MyListingCard(
-                              listing: listings.elementAt(index), onTap: () {});
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+    return Scaffold(
+      appBar: AppBar(
+        title:
+            Text("My Listings", style: Theme.of(context).textTheme.titleLarge),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: NotificationListener<ScrollEndNotification>(
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: listings.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == listings.length) {
+                    if (!allFetched) {
+                      return Container(
+                        width: double.infinity,
+                        height: 60,
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.black,
+                          ),
+                        ),
+                      );
+                    } else {
+                      return SizedBox(
+                        child: Center(
+                          child: Text("That's the end of the listings"),
+                        ),
+                      );
+                    }
+                  }
+                  return MyListingCard(
+                      listing: listings.elementAt(index), onTap: () {});
+                },
               ),
+              onNotification: (scrollEnd) {
+                if (scrollEnd.metrics.atEdge && scrollEnd.metrics.pixels > 0) {
+                  getData();
+                }
+                return true;
+              },
             ),
-          );
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -23,6 +23,7 @@ class _FinalizeDetailsPageState extends State<FinalizeDetailsPage> {
   late Listing listing;
   String listingType = 'Requesting';
   late DateTime publishedDateTime;
+  bool clicked = false;
 
   bool isLoading = false;
   bool priceValid = true;
@@ -164,34 +165,39 @@ class _FinalizeDetailsPageState extends State<FinalizeDetailsPage> {
                                   fontSize: 15.0),
                         ),
                   onTap: () async {
-                    if (priceValid) {
-                      publishedDateTime = latestTime();
-                      listing.publishedTime = publishedDateTime;
-                      if (priceController.text.trim().isEmpty) {
-                        listing.price = "0";
-                      } else {
-                        listing.price = priceController.text.trim();
-                      }
-                      try {
-                        await FirebaseAuth.instance.currentUser!.reload();
-                        setState(() {
-                          isLoading = true;
-                        });
-                        String result =
-                            await PostService().publishPost(listing);
-                        if (result != "success") {
-                          showMessage(result);
+                    if (!clicked) {
+                      setState(() {
+                        clicked = true;
+                      });
+                      if (priceValid) {
+                        publishedDateTime = DateTime.now().toUtc();
+                        listing.publishedTime = publishedDateTime;
+                        if (priceController.text.trim().isEmpty) {
+                          listing.price = "0";
                         } else {
-                          // ignore: use_build_context_synchronously
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const PublishPostSuccessPage(),
-                                  maintainState: true),
-                              (Route<dynamic> route) => false);
+                          listing.price = priceController.text.trim();
                         }
-                      } catch (e) {}
+                        try {
+                          await FirebaseAuth.instance.currentUser!.reload();
+                          setState(() {
+                            isLoading = true;
+                          });
+                          String result =
+                              await PostService().publishPost(listing);
+                          if (result != "success") {
+                            showMessage(result);
+                          } else {
+                            // ignore: use_build_context_synchronously
+                            Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const PublishPostSuccessPage(),
+                                    maintainState: true),
+                                (Route<dynamic> route) => false);
+                          }
+                        } catch (e) {}
+                      }
                     }
                   },
                 ),

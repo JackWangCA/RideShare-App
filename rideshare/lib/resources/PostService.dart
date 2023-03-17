@@ -39,19 +39,38 @@ class PostService {
     return Listing.fromSnap(documentSnapshot);
   }
 
-  Future<List<Listing>> getListingsFromUID(String uid) async {
+  Future<List<Listing>> getListingsFromUIDByDepartTime(String uid) async {
     try {
-      var snapshot = await _firestore.collection("users").doc(uid).get();
-      final doc = snapshot.data()!;
-      final listings = doc["listings"] as List;
+      var documents = await _firestore
+          .collection("posts")
+          .orderBy("departTime", descending: true)
+          .limitToLast(2)
+          .get();
+      final doc = documents;
+      final listings = doc.docs;
       List<Listing> myListings = [];
-
-      for (final listingID in listings) {
-        myListings.add(await getPostFromUUID(listingID));
+      for (final listing in listings) {
+        myListings.add(await getPostFromUUID(listing.data()["uuid"]));
       }
       return myListings;
     } catch (e) {
       throw Exception("no");
     }
+  }
+
+  Future<Query<Map<String, dynamic>>> getDocuments() async {
+    Query<Map<String, dynamic>> query = _firestore
+        .collection("posts")
+        .orderBy("publishedTime", descending: true);
+    return query;
+  }
+
+  Future<List<Listing>> getListingsFromDocs(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> docs) async {
+    List<Listing> myListings = [];
+    for (final listing in docs) {
+      myListings.add(await getPostFromUUID(listing.data()["uuid"]));
+    }
+    return myListings;
   }
 }

@@ -38,7 +38,9 @@ class MyListingCard extends StatelessWidget {
                 listing.departTime.toLocal().toString(),
               ),
               Text(
-                listing.price.isEmpty ? "Free" : listing.price,
+                (listing.price.isEmpty || listing.price == "0")
+                    ? "Free"
+                    : listing.price,
               ),
             ],
           ),
