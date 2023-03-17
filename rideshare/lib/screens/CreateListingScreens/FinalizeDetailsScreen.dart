@@ -25,6 +25,7 @@ class _FinalizeDetailsPageState extends State<FinalizeDetailsPage> {
   late DateTime publishedDateTime;
 
   bool isLoading = false;
+  bool priceValid = true;
 
   TextEditingController priceController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -114,6 +115,17 @@ class _FinalizeDetailsPageState extends State<FinalizeDetailsPage> {
               Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 28.0),
                   child: TextField(
+                    onChanged: (value) {
+                      if (double.tryParse(value) == false &&
+                          int.tryParse(value) == false &&
+                          value.isNotEmpty) {
+                        setState(() {
+                          priceValid = false;
+                        });
+                      } else {
+                        priceValid = true;
+                      }
+                    },
                     maxLines: 10,
                     maxLength: 500,
                     controller: descriptionController,
@@ -152,27 +164,35 @@ class _FinalizeDetailsPageState extends State<FinalizeDetailsPage> {
                                   fontSize: 15.0),
                         ),
                   onTap: () async {
-                    publishedDateTime = latestTime();
-                    listing.publishedTime = publishedDateTime;
-                    try {
-                      await FirebaseAuth.instance.currentUser!.reload();
-                      setState(() {
-                        isLoading = true;
-                      });
-                      String result = await PostService().publishPost(listing);
-                      if (result != "success") {
-                        showMessage(result);
+                    if (priceValid) {
+                      publishedDateTime = latestTime();
+                      listing.publishedTime = publishedDateTime;
+                      if (priceController.text.trim().isEmpty) {
+                        listing.price = "0";
                       } else {
-                        // ignore: use_build_context_synchronously
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const PublishPostSuccessPage(),
-                                maintainState: true),
-                            (Route<dynamic> route) => false);
+                        listing.price = priceController.text.trim();
                       }
-                    } catch (e) {}
+                      try {
+                        await FirebaseAuth.instance.currentUser!.reload();
+                        setState(() {
+                          isLoading = true;
+                        });
+                        String result =
+                            await PostService().publishPost(listing);
+                        if (result != "success") {
+                          showMessage(result);
+                        } else {
+                          // ignore: use_build_context_synchronously
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PublishPostSuccessPage(),
+                                  maintainState: true),
+                              (Route<dynamic> route) => false);
+                        }
+                      } catch (e) {}
+                    }
                   },
                 ),
               ),

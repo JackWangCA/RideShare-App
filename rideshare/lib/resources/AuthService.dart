@@ -207,7 +207,13 @@ class AuthService {
         }
         result = "success";
       } catch (e) {
-        result = e.toString();
+        if (e.toString() ==
+            "[firebase_auth/requires-recent-login] This operation is sensitive and requires recent authentication. Log in again before retrying this request.") {
+          result =
+              "It's been too long since your last login, try logging in again and then delete your account.";
+        } else {
+          result = e.toString();
+        }
       }
     }
     return result;

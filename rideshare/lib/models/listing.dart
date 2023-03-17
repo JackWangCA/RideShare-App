@@ -6,26 +6,28 @@ class Listing {
   String listingType;
   DateTime departTime; //in utc
   DateTime publishedTime; //in utc
-  double price;
+  String price;
   GeoPoint startLocation;
   GeoPoint destination;
   String startLocationText;
   String destinationText;
   String description;
   String uuid;
+  bool atCapacity;
 
   Listing({
     this.uid = "",
     this.listingType = "Request",
     required this.departTime,
     required this.publishedTime,
-    this.price = 0,
+    this.price = "0",
     this.startLocation = const GeoPoint(0, 0),
     this.destination = const GeoPoint(0, 0),
     this.startLocationText = "",
     this.destinationText = "",
     this.description = "",
     this.uuid = "",
+    this.atCapacity = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -40,6 +42,7 @@ class Listing {
         "destinationText": destinationText,
         "description": description,
         "uuid": uuid,
+        "atCapacity": atCapacity,
       };
 
   static Listing fromSnap(DocumentSnapshot snap) {
@@ -57,6 +60,7 @@ class Listing {
       destinationText: snapshot["destinationText"],
       description: snapshot["description"],
       uuid: snapshot["description"],
+      atCapacity: snapshot["atCapacity"],
     );
   }
 }

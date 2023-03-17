@@ -9,13 +9,12 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:rideshare/components/locationPredictions.dart';
 import 'package:rideshare/components/myLocationTextField.dart';
 import 'package:rideshare/models/listing.dart';
 import 'package:rideshare/resources/PlaceIdDetails.dart';
 
 import '../../components/myButton.dart';
-import '../../models/LocationListTile.dart';
+import '../../components/LocationListTile.dart';
 import '../../resources/AutocompletePrediction.dart';
 import '../../resources/NetworkService.dart';
 import '../../resources/PlaceAutoCompleteResponse.dart';
@@ -317,6 +316,8 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
                       children: [
                         Focus(
                           onFocusChange: (value) {
@@ -375,7 +376,8 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                           height: 10.0,
                         ),
                         locationPredictionOpen &&
-                                startLocationFocusNode.hasFocus
+                                startLocationFocusNode.hasFocus &&
+                                startLocationPredictions.isNotEmpty
                             ? Flexible(
                                 fit: FlexFit.loose,
                                 child: Padding(
@@ -493,9 +495,11 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                                     }),
                               ),
                         const SizedBox(
-                          height: 5.0,
+                          height: 10.0,
                         ),
-                        locationPredictionOpen && destinationFocusNode.hasFocus
+                        locationPredictionOpen &&
+                                destinationFocusNode.hasFocus &&
+                                destinationPredictions.isNotEmpty
                             ? Flexible(
                                 fit: FlexFit.loose,
                                 child: Padding(
@@ -557,60 +561,65 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                                 ),
                               )
                             : const SizedBox(),
-                        const Spacer(),
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: MyButton(
-                            child: Text(
-                              "Confirm Locations",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyLarge!
-                                  .copyWith(
-                                      color: Theme.of(context).canvasColor,
-                                      fontSize: 15.0),
-                            ),
-                            onTap: () {
-                              // if ((startLocation!.latitude == 0 &&
-                              //         startLocation!.longitude == 0) ||
-                              //     (destination!.latitude == 0 &&
-                              //         destination!.longitude == 0)) {
-                              //   showMessage(
-                              //       "Please select your start location");
-                              // }
-                              if (startLocationTextController.text
-                                      .trim()
-                                      .isEmpty ||
-                                  destinationTextController.text
-                                      .trim()
-                                      .isEmpty) {
-                                showMessage(
-                                    "Please enter both your start location and destination");
-                              } else {
-                                listing.startLocation = GeoPoint(
-                                    startLocation!.latitude,
-                                    startLocation!.latitude);
-                                listing.destination = GeoPoint(
-                                    destination!.latitude,
-                                    destination!.longitude);
-                                listing.startLocationText =
-                                    startLocationTextController.text.trim();
-                                listing.destinationText =
-                                    destinationTextController.text.trim();
-                                if (mounted) {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => FinalizeDetailsPage(
-                                        listing: listing,
-                                      ),
-                                    ),
-                                  );
-                                }
-                              }
-                            },
-                          ),
-                        ),
+                        // const Spacer(),
                       ],
+                    ),
+                  ),
+                ),
+                SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Align(
+                      alignment: FractionalOffset.bottomCenter,
+                      child: MyButton(
+                        child: Text(
+                          "Confirm Locations",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(
+                                  color: Theme.of(context).canvasColor,
+                                  fontSize: 15.0),
+                        ),
+                        onTap: () {
+                          if (startLocationTextController.text.trim().isEmpty ||
+                              destinationTextController.text.trim().isEmpty) {
+                            showMessage(
+                                "Please enter both your start location and destination");
+                          } else if (startLocation!.latitude == 0.0 &&
+                              startLocation!.longitude == 0.0 &&
+                              startLocationTextController.text.trim().length >
+                                  50) {
+                            showMessage(
+                                "Start location name is too long, maybe try a shorter name?");
+                          } else if (destination!.latitude == 0.0 &&
+                              destination!.longitude == 0.0 &&
+                              destinationTextController.text.trim().length >
+                                  50) {
+                            showMessage(
+                                "Destination name is too long, maybe try a shorter name?");
+                          } else {
+                            listing.startLocation = GeoPoint(
+                                startLocation!.latitude,
+                                startLocation!.latitude);
+                            listing.destination = GeoPoint(
+                                destination!.latitude, destination!.longitude);
+                            listing.startLocationText =
+                                startLocationTextController.text.trim();
+                            listing.destinationText =
+                                destinationTextController.text.trim();
+                            if (mounted) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => FinalizeDetailsPage(
+                                    listing: listing,
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
                     ),
                   ),
                 ),

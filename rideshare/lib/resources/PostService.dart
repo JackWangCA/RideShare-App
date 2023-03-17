@@ -40,16 +40,18 @@ class PostService {
   }
 
   Future<List<Listing>> getListingsFromUID(String uid) async {
-    List<Listing> myListings = [];
-    await _firestore.collection("users").doc(uid).get().then((value) {
-      // print(value.data());
-      List.from(value.data()!["listings"]).forEach((element) async {
-        print(element);
-        Listing curListing = await getPostFromUUID(element);
-        print(curListing.startLocationText);
-        myListings.add(curListing);
-      });
-    });
-    return myListings;
+    try {
+      var snapshot = await _firestore.collection("users").doc(uid).get();
+      final doc = snapshot.data()!;
+      final listings = doc["listings"] as List;
+      List<Listing> myListings = [];
+
+      for (final listingID in listings) {
+        myListings.add(await getPostFromUUID(listingID));
+      }
+      return myListings;
+    } catch (e) {
+      throw Exception("no");
+    }
   }
 }
