@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:rideshare/components/myListingCard.dart';
 import 'package:rideshare/models/user.dart' as model;
 import 'package:rideshare/resources/PostService.dart';
@@ -20,7 +23,9 @@ class _MyListingsPageState extends State<MyListingsPage> {
   bool isLoading = false;
   bool allFetched = false;
   DocumentSnapshot? lastDocument;
+  bool hasInternet = true;
   static const PAGE_SIZE = 7;
+  late StreamSubscription internetSubscription;
 
   User authUser = FirebaseAuth.instance.currentUser!;
   model.User user = model.User(
@@ -44,6 +49,12 @@ class _MyListingsPageState extends State<MyListingsPage> {
     setState(() {
       isLoading = true;
     });
+    // List<Listing> userListings =
+    //     await PostService().getUserPostsFromUID(authUser.uid);
+    // userListings.sort((a, b) => b.publishedTime.compareTo(a.publishedTime));
+    // for (final listing in userListings) {
+    //   print(listing.publishedTime);
+    // }
     try {
       var userSnap = await FirebaseFirestore.instance
           .collection('users')
@@ -52,7 +63,7 @@ class _MyListingsPageState extends State<MyListingsPage> {
       setState(() {
         user = model.User.fromSnap(userSnap);
       });
-      Query<Map<String, dynamic>> query = await PostService().getDocuments();
+      var query = await PostService().getUserPosts(authUser.uid);
       if (lastDocument != null) {
         query = query.startAfterDocument(lastDocument!).limit(PAGE_SIZE);
       } else {
@@ -77,6 +88,9 @@ class _MyListingsPageState extends State<MyListingsPage> {
     } catch (e) {
       print(e.toString());
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   void showMessage(String title) {
@@ -99,6 +113,13 @@ class _MyListingsPageState extends State<MyListingsPage> {
   @override
   void initState() {
     super.initState();
+    internetSubscription =
+        InternetConnectionChecker().onStatusChange.listen((status) {
+      final hasInternet = status == InternetConnectionStatus.connected;
+      setState(() {
+        this.hasInternet = hasInternet;
+      });
+    });
     try {
       getData();
     } catch (e) {
@@ -115,52 +136,63 @@ class _MyListingsPageState extends State<MyListingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title:
-            Text("My Listings", style: Theme.of(context).textTheme.titleLarge),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: NotificationListener<ScrollEndNotification>(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: listings.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == listings.length) {
-                    if (!allFetched) {
-                      return Container(
-                        width: double.infinity,
-                        height: 60,
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.black,
-                          ),
-                        ),
-                      );
-                    } else {
-                      return SizedBox(
-                        child: Center(
-                          child: Text("That's the end of the listings"),
-                        ),
-                      );
-                    }
-                  }
-                  return MyListingCard(
-                      listing: listings.elementAt(index), onTap: () {});
-                },
-              ),
-              onNotification: (scrollEnd) {
-                if (scrollEnd.metrics.atEdge && scrollEnd.metrics.pixels > 0) {
-                  getData();
-                }
-                return true;
-              },
+    return hasInternet
+        ? Scaffold(
+            appBar: AppBar(
+              title: Text("My Listings",
+                  style: Theme.of(context).textTheme.titleLarge),
             ),
-          ),
-        ],
-      ),
-    );
+            body: Column(
+              children: [
+                Expanded(
+                  child: NotificationListener<ScrollEndNotification>(
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: listings.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == listings.length) {
+                          if (!allFetched) {
+                            return Container(
+                              width: double.infinity,
+                              height: 60,
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.black,
+                                ),
+                              ),
+                            );
+                          } else {
+                            return const SizedBox(
+                              child: Center(
+                                child: Text("That's the end of the listings"),
+                              ),
+                            );
+                          }
+                        }
+                        return MyListingCard(
+                            listing: listings.elementAt(index), onTap: () {});
+                      },
+                    ),
+                    onNotification: (scrollEnd) {
+                      if (scrollEnd.metrics.atEdge &&
+                          scrollEnd.metrics.pixels > 0) {
+                        getData();
+                      }
+                      return true;
+                    },
+                  ),
+                ),
+              ],
+            ),
+          )
+        : Scaffold(
+            appBar: AppBar(
+              title: Text("My Listings",
+                  style: Theme.of(context).textTheme.titleLarge),
+            ),
+            body: const Center(
+              child: Text("No Internet"),
+            ),
+          );
   }
 }

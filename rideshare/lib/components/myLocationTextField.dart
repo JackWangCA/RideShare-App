@@ -23,6 +23,7 @@ class MyLocationTextField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: TextField(
+        textCapitalization: TextCapitalization.sentences,
         focusNode: focusNode,
         autocorrect: false,
         showCursor: true,

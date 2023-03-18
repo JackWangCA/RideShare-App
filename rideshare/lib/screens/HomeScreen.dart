@@ -10,6 +10,9 @@ import 'package:rideshare/screens/MyListingsScreen.dart';
 import 'package:rideshare/screens/SettingScreen.dart';
 import 'package:rideshare/models/user.dart' as model;
 
+import '../components/myListingCard.dart';
+import '../models/listing.dart';
+import '../resources/PostService.dart';
 import 'CreateListingScreens/CreateListingScreen.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,6 +28,14 @@ class _HomePageState extends State<HomePage> {
   bool hasInternet = true;
   bool isLoading = false;
   bool emailVerified = false;
+  List<Listing> listings = [];
+
+  List<String> arrangeListingsOptions = <String>['Newest', 'Name(Start)'];
+  String arrangeListing = "Newest";
+
+  bool allFetched = false;
+  DocumentSnapshot? lastDocument;
+  static const PAGE_SIZE = 7;
 
   bool hasPhoto = false;
   model.User user = model.User(
@@ -69,20 +80,31 @@ class _HomePageState extends State<HomePage> {
       });
     });
     super.initState();
-    setState(() {
-      isLoading = true;
-    });
     try {
       getData();
     } catch (e) {
       showMessage(e.toString());
     }
+  }
+
+  void resetPage() {
     setState(() {
-      isLoading = false;
+      listings.clear();
+      allFetched = false;
+      lastDocument = null;
     });
   }
 
   getData() async {
+    if (isLoading) {
+      return;
+    }
+    if (allFetched) {
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
     authUser = FirebaseAuth.instance.currentUser!;
     try {
       var userSnap = await FirebaseFirestore.instance
@@ -102,195 +124,300 @@ class _HomePageState extends State<HomePage> {
           hasPhoto = true;
         });
       }
+      List<Listing> pagedData = [];
+      if (arrangeListing == "Newest") {
+        pagedData = await getPostsByTime();
+      } else if (arrangeListing == "Name(Start)") {
+        pagedData = await getPostsByNameStart();
+      }
+      setState(() {
+        listings.addAll(pagedData);
+        if (pagedData.length < PAGE_SIZE) {
+          allFetched = true;
+        }
+        isLoading = false;
+      });
     } catch (e) {
       print(e.toString());
     }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<List<Listing>> getPostsByNameStart() async {
+    var query = await PostService().getAllPostsByNameStart();
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument!).limit(PAGE_SIZE);
+    } else {
+      query = query.limit(PAGE_SIZE);
+    }
+    final List<Listing> pagedData = await query.get().then((value) async {
+      if (value.docs.isNotEmpty) {
+        lastDocument = value.docs.last;
+      } else {
+        lastDocument = null;
+      }
+      var result = await PostService().getListingsFromDocs(value.docs);
+      return result;
+    });
+    return pagedData;
+  }
+
+  Future<List<Listing>> getPostsByTime() async {
+    var query = await PostService().getAllPostsByTime();
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument!).limit(PAGE_SIZE);
+    } else {
+      query = query.limit(PAGE_SIZE);
+    }
+    final List<Listing> pagedData = await query.get().then((value) async {
+      if (value.docs.isNotEmpty) {
+        lastDocument = value.docs.last;
+      } else {
+        lastDocument = null;
+      }
+      var result = await PostService().getListingsFromDocs(value.docs);
+      return result;
+    });
+    print(pagedData.length);
+    return pagedData;
   }
 
   @override
   Widget build(BuildContext context) {
-    return isLoading
-        ? const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+    return hasInternet
+        ? Scaffold(
+            appBar: AppBar(
+              title: Text(
+                "GETAWAY",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              actions: <Widget>[
+                DropdownButton(
+                    value: arrangeListing,
+                    items: arrangeListingsOptions
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? value) {
+                      setState(() {
+                        arrangeListing = value!;
+                        resetPage();
+                        getData();
+                      });
+                    }),
+              ],
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                if (authUser.emailVerified) {
+                  Navigator.of(context)
+                      .push(
+                    MaterialPageRoute(
+                      builder: (context) => const CreateListingPage(),
+                    ),
+                  )
+                      .then((value) {
+                    setState(() {
+                      getData();
+                    });
+                  });
+                } else {
+                  showMessage(
+                      "You have to verify your email address before making a post");
+                }
+              },
+              child: const Icon(Icons.add),
+            ),
+
+            //Drawer on the left side of the App Bar
+            drawer: Drawer(
+              child: ListView(
+                children: [
+                  SizedBox(
+                    height: 180,
+                    child: DrawerHeader(
+                      child: Center(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: 80.0,
+                              height: 80.0,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: hasPhoto
+                                    ? Image.network(
+                                        user.photoUrl,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        'lib/images/default_photo.jpeg',
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10.0,
+                            ),
+                            Text(
+                              "${user.firstName} ${user.lastName}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              user.email,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            Text(
+                              authUser.emailVerified
+                                  ? "Verified"
+                                  : "Unverified",
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  //User's Profile
+                  ListTile(
+                    leading: const Icon(Icons.person),
+                    title: Text(
+                      'My Profile',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(),
+                        ),
+                      )
+                          .then((value) {
+                        setState(() {
+                          getData();
+                        });
+                      });
+                    },
+                  ),
+
+                  //User's Listings
+                  ListTile(
+                    leading: const Icon(Icons.car_rental),
+                    title: Text(
+                      'My Listings',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(
+                        MaterialPageRoute(
+                          builder: (context) => MyListingsPage(),
+                        ),
+                      )
+                          .then((value) {
+                        setState(() {
+                          getData();
+                        });
+                      });
+                    },
+                  ),
+
+                  //Settings
+                  ListTile(
+                    leading: const Icon(Icons.settings),
+                    title: Text(
+                      'Settings',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(
+                        MaterialPageRoute(
+                          builder: (context) => const SettingsPage(),
+                        ),
+                      )
+                          .then((value) {
+                        setState(() {
+                          getData();
+                        });
+                      });
+                    },
+                  ),
+
+                  //Sign Out
+                  ListTile(
+                    leading: const Icon(Icons.logout),
+                    title: Text(
+                      'Sign Out',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    onTap: () {
+                      AuthService().signOut();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: NotificationListener<ScrollEndNotification>(
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: listings.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == listings.length) {
+                          if (!allFetched) {
+                            return Container(
+                              width: double.infinity,
+                              height: 60,
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.black,
+                                ),
+                              ),
+                            );
+                          } else {
+                            return SizedBox(
+                              child: Center(
+                                child: Text("That's the end of the listings"),
+                              ),
+                            );
+                          }
+                        }
+                        return MyListingCard(
+                            listing: listings.elementAt(index), onTap: () {});
+                      },
+                    ),
+                    onNotification: (scrollEnd) {
+                      if (scrollEnd.metrics.atEdge &&
+                          scrollEnd.metrics.pixels > 0) {
+                        getData();
+                      }
+                      return true;
+                    },
+                  ),
+                ),
+              ],
             ),
           )
-        : hasInternet
-            ? Scaffold(
-                appBar: AppBar(
-                  title: Text(
-                    "GETAWAY",
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  actions: <Widget>[
-                    IconButton(
-                        onPressed: () {
-                          if (authUser.emailVerified) {
-                            Navigator.of(context)
-                                .push(
-                              MaterialPageRoute(
-                                builder: (context) => const CreateListingPage(),
-                              ),
-                            )
-                                .then((value) {
-                              setState(() {
-                                getData();
-                              });
-                            });
-                          } else {
-                            showMessage(
-                                "You have to verify your email address before making a post");
-                          }
-                        },
-                        icon: const Icon(Icons.add))
-                  ],
-                ),
-
-                //Drawer on the left side of the App Bar
-                drawer: Drawer(
-                  child: ListView(
-                    children: [
-                      SizedBox(
-                        height: 180,
-                        child: DrawerHeader(
-                          child: Center(
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  width: 80.0,
-                                  height: 80.0,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: hasPhoto
-                                        ? Image.network(
-                                            user.photoUrl,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : Image.asset(
-                                            'lib/images/default_photo.jpeg',
-                                            fit: BoxFit.cover,
-                                          ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10.0,
-                                ),
-                                Text(
-                                  "${user.firstName} ${user.lastName}",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium!
-                                      .copyWith(fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  user.email,
-                                  style: Theme.of(context).textTheme.titleSmall,
-                                ),
-                                Text(
-                                  authUser.emailVerified
-                                      ? "Verified"
-                                      : "Unverified",
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      //User's Profile
-                      ListTile(
-                        leading: const Icon(Icons.person),
-                        title: Text(
-                          'My Profile',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        onTap: () {
-                          Navigator.of(context)
-                              .push(
-                            MaterialPageRoute(
-                              builder: (context) => const ProfilePage(),
-                            ),
-                          )
-                              .then((value) {
-                            setState(() {
-                              getData();
-                            });
-                          });
-                        },
-                      ),
-
-                      //User's Listings
-                      ListTile(
-                        leading: const Icon(Icons.car_rental),
-                        title: Text(
-                          'My Listings',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        onTap: () {
-                          Navigator.of(context)
-                              .push(
-                            MaterialPageRoute(
-                              builder: (context) => MyListingsPage(),
-                            ),
-                          )
-                              .then((value) {
-                            setState(() {
-                              getData();
-                            });
-                          });
-                        },
-                      ),
-
-                      //Settings
-                      ListTile(
-                        leading: const Icon(Icons.settings),
-                        title: Text(
-                          'Settings',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        onTap: () {
-                          Navigator.of(context)
-                              .push(
-                            MaterialPageRoute(
-                              builder: (context) => const SettingsPage(),
-                            ),
-                          )
-                              .then((value) {
-                            setState(() {
-                              getData();
-                            });
-                          });
-                        },
-                      ),
-
-                      //Sign Out
-                      ListTile(
-                        leading: const Icon(Icons.logout),
-                        title: Text(
-                          'Sign Out',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        onTap: () {
-                          AuthService().signOut();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                body: Center(
-                  child: Text('Logged In As: ${authUser.email!}'),
-                ),
-              )
-            : Scaffold(
-                appBar: AppBar(
-                  title: Text(
-                    "GETAWAY",
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                body: const Center(
-                  child: Text("No Internet"),
-                ),
-              );
+        : Scaffold(
+            appBar: AppBar(
+              title: Text(
+                "GETAWAY",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            body: const Center(
+              child: Text("No Internet"),
+            ),
+          );
   }
 }

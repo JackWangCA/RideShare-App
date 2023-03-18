@@ -39,25 +39,6 @@ class PostService {
     return Listing.fromSnap(documentSnapshot);
   }
 
-  Future<List<Listing>> getListingsFromUIDByDepartTime(String uid) async {
-    try {
-      var documents = await _firestore
-          .collection("posts")
-          .orderBy("departTime", descending: true)
-          .limitToLast(2)
-          .get();
-      final doc = documents;
-      final listings = doc.docs;
-      List<Listing> myListings = [];
-      for (final listing in listings) {
-        myListings.add(await getPostFromUUID(listing.data()["uuid"]));
-      }
-      return myListings;
-    } catch (e) {
-      throw Exception("no");
-    }
-  }
-
   Future<Query<Map<String, dynamic>>> getDocuments() async {
     Query<Map<String, dynamic>> query = _firestore
         .collection("posts")
@@ -65,11 +46,44 @@ class PostService {
     return query;
   }
 
+  Future<Query<Map<String, dynamic>>> getUserPosts(String uid) async {
+    Query<Map<String, dynamic>> query = _firestore
+        .collection("posts")
+        .where("uid", isEqualTo: uid)
+        .orderBy("publishedTime", descending: true);
+    return query;
+  }
+
+  Future<Query<Map<String, dynamic>>> getAllPostsByTime() async {
+    Query<Map<String, dynamic>> query = _firestore
+        .collection("posts")
+        .orderBy("publishedTime", descending: true);
+    return query;
+  }
+
+  Future<Query<Map<String, dynamic>>> getAllPostsByNameStart() async {
+    Query<Map<String, dynamic>> query = _firestore
+        .collection("posts")
+        .orderBy("startLocationText", descending: false);
+    return query;
+  }
+
+  // Future<List<Listing>> getUserPostsFromUID(String uid) async {
+  //   List<Listing> myListings = [];
+  //   var userQuery = await _firestore.collection("users").doc(uid).get();
+  //   final docs = userQuery.get("listings");
+  //   for (final doc in docs) {
+  //     myListings.add(await getPostFromUUID(doc));
+  //   }
+  //   return myListings;
+  // }
+
   Future<List<Listing>> getListingsFromDocs(
       List<QueryDocumentSnapshot<Map<String, dynamic>>> docs) async {
     List<Listing> myListings = [];
     for (final listing in docs) {
-      myListings.add(await getPostFromUUID(listing.data()["uuid"]));
+      Listing curListing = await getPostFromUUID(listing.data()["uuid"]);
+      myListings.add(curListing);
     }
     return myListings;
   }
