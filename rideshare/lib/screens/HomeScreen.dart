@@ -30,7 +30,12 @@ class _HomePageState extends State<HomePage> {
   bool emailVerified = false;
   List<Listing> listings = [];
 
-  List<String> arrangeListingsOptions = <String>['Newest', 'Name(Start)'];
+  List<String> arrangeListingsOptions = <String>[
+    'Newest',
+    'Name(Start)',
+    "Offering",
+    "Requesting"
+  ];
   String arrangeListing = "Newest";
 
   bool allFetched = false;
@@ -125,11 +130,7 @@ class _HomePageState extends State<HomePage> {
         });
       }
       List<Listing> pagedData = [];
-      if (arrangeListing == "Newest") {
-        pagedData = await getPostsByTime();
-      } else if (arrangeListing == "Name(Start)") {
-        pagedData = await getPostsByNameStart();
-      }
+      pagedData = await getPostsBy(arrangeListing);
       setState(() {
         listings.addAll(pagedData);
         if (pagedData.length < PAGE_SIZE) {
@@ -145,8 +146,18 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<List<Listing>> getPostsByNameStart() async {
-    var query = await PostService().getAllPostsByNameStart();
+  Future<List<Listing>> getPostsBy(String arrangeMethod) async {
+    var query;
+    if (arrangeMethod == "Name(Start)") {
+      query = await PostService().getAllPostsByNameStart();
+    } else if (arrangeMethod == "Newest") {
+      query = await PostService().getAllPostsByTime();
+    } else if (arrangeMethod == "Offering") {
+      query = await PostService().getAllPostsByOffering();
+    } else if (arrangeMethod == "Requesting") {
+      query = await PostService().getAllPostsByRequesting();
+    }
+
     if (lastDocument != null) {
       query = query.startAfterDocument(lastDocument!).limit(PAGE_SIZE);
     } else {
@@ -180,7 +191,6 @@ class _HomePageState extends State<HomePage> {
       var result = await PostService().getListingsFromDocs(value.docs);
       return result;
     });
-    print(pagedData.length);
     return pagedData;
   }
 
@@ -365,47 +375,50 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            body: Column(
-              children: [
-                Expanded(
-                  child: NotificationListener<ScrollEndNotification>(
-                    child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: listings.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == listings.length) {
-                          if (!allFetched) {
-                            return Container(
-                              width: double.infinity,
-                              height: 60,
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.black,
+            body: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: NotificationListener<ScrollEndNotification>(
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: listings.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == listings.length) {
+                            if (!allFetched) {
+                              return Container(
+                                width: double.infinity,
+                                height: 60,
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                            );
-                          } else {
-                            return SizedBox(
-                              child: Center(
-                                child: Text("That's the end of the listings"),
-                              ),
-                            );
+                              );
+                            } else {
+                              return SizedBox(
+                                child: Center(
+                                  child: Text("That's the end of the listings"),
+                                ),
+                              );
+                            }
                           }
+                          return MyListingCard(
+                              listing: listings.elementAt(index), onTap: () {});
+                        },
+                      ),
+                      onNotification: (scrollEnd) {
+                        if (scrollEnd.metrics.atEdge &&
+                            scrollEnd.metrics.pixels > 0) {
+                          getData();
                         }
-                        return MyListingCard(
-                            listing: listings.elementAt(index), onTap: () {});
+                        return true;
                       },
                     ),
-                    onNotification: (scrollEnd) {
-                      if (scrollEnd.metrics.atEdge &&
-                          scrollEnd.metrics.pixels > 0) {
-                        getData();
-                      }
-                      return true;
-                    },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           )
         : Scaffold(

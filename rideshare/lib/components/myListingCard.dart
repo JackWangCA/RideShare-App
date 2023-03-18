@@ -12,7 +12,7 @@ class MyListingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Card(
         elevation: 5,
         shape: const RoundedRectangleBorder(

@@ -142,47 +142,50 @@ class _MyListingsPageState extends State<MyListingsPage> {
               title: Text("My Listings",
                   style: Theme.of(context).textTheme.titleLarge),
             ),
-            body: Column(
-              children: [
-                Expanded(
-                  child: NotificationListener<ScrollEndNotification>(
-                    child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: listings.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == listings.length) {
-                          if (!allFetched) {
-                            return Container(
-                              width: double.infinity,
-                              height: 60,
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.black,
+            body: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: NotificationListener<ScrollEndNotification>(
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: listings.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == listings.length) {
+                            if (!allFetched) {
+                              return Container(
+                                width: double.infinity,
+                                height: 60,
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                            );
-                          } else {
-                            return const SizedBox(
-                              child: Center(
-                                child: Text("That's the end of the listings"),
-                              ),
-                            );
+                              );
+                            } else {
+                              return const SizedBox(
+                                child: Center(
+                                  child: Text("That's the end of the listings"),
+                                ),
+                              );
+                            }
                           }
+                          return MyListingCard(
+                              listing: listings.elementAt(index), onTap: () {});
+                        },
+                      ),
+                      onNotification: (scrollEnd) {
+                        if (scrollEnd.metrics.atEdge &&
+                            scrollEnd.metrics.pixels > 0) {
+                          getData();
                         }
-                        return MyListingCard(
-                            listing: listings.elementAt(index), onTap: () {});
+                        return true;
                       },
                     ),
-                    onNotification: (scrollEnd) {
-                      if (scrollEnd.metrics.atEdge &&
-                          scrollEnd.metrics.pixels > 0) {
-                        getData();
-                      }
-                      return true;
-                    },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           )
         : Scaffold(

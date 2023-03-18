@@ -50,13 +50,15 @@ class PostService {
     Query<Map<String, dynamic>> query = _firestore
         .collection("posts")
         .where("uid", isEqualTo: uid)
-        .orderBy("publishedTime", descending: true);
+        .orderBy("departTime", descending: true);
     return query;
   }
 
   Future<Query<Map<String, dynamic>>> getAllPostsByTime() async {
     Query<Map<String, dynamic>> query = _firestore
         .collection("posts")
+        .where("departTime", isGreaterThan: DateTime.now())
+        .orderBy("departTime")
         .orderBy("publishedTime", descending: true);
     return query;
   }
@@ -64,7 +66,27 @@ class PostService {
   Future<Query<Map<String, dynamic>>> getAllPostsByNameStart() async {
     Query<Map<String, dynamic>> query = _firestore
         .collection("posts")
-        .orderBy("startLocationText", descending: false);
+        .where("departTime", isGreaterThan: DateTime.now())
+        .orderBy("departTime")
+        .orderBy("startLocationText", descending: true);
+    return query;
+  }
+
+  Future<Query<Map<String, dynamic>>> getAllPostsByOffering() async {
+    Query<Map<String, dynamic>> query = _firestore
+        .collection("posts")
+        .where("departTime", isGreaterThan: DateTime.now())
+        .orderBy("departTime")
+        .where("listingType", isEqualTo: "Offering");
+    return query;
+  }
+
+  Future<Query<Map<String, dynamic>>> getAllPostsByRequesting() async {
+    Query<Map<String, dynamic>> query = _firestore
+        .collection("posts")
+        .where("departTime", isGreaterThan: DateTime.now())
+        .orderBy("departTime")
+        .where("listingType", isEqualTo: "Request");
     return query;
   }
 

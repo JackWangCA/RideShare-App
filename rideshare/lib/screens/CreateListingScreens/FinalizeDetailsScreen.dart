@@ -173,6 +173,7 @@ class _FinalizeDetailsPageState extends State<FinalizeDetailsPage> {
                       if (priceValid) {
                         publishedDateTime = DateTime.now().toUtc();
                         listing.publishedTime = publishedDateTime;
+                        listing.listingType = listingType;
                         if (priceController.text.trim().isEmpty) {
                           listing.price = "0";
                         } else {
