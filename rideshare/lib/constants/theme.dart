@@ -11,7 +11,7 @@ ThemeData lightTheme = ThemeData(
   ),
   hintColor: Colors.grey,
   dividerColor: Colors.grey,
-  cardColor: Colors.grey[200],
+  cardColor: Colors.grey[100],
   focusColor: Colors.black,
   textButtonTheme: TextButtonThemeData(
     style: ButtonStyle(
@@ -53,7 +53,7 @@ ThemeData darkTheme = ThemeData(
     backgroundColor: Colors.black,
   ),
   dividerColor: Colors.grey,
-  cardColor: Colors.grey[200],
+  cardColor: Colors.grey[900],
   focusColor: Colors.white,
   textButtonTheme: TextButtonThemeData(
     style: ButtonStyle(

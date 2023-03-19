@@ -32,7 +32,6 @@ class _HomePageState extends State<HomePage> {
 
   List<String> arrangeListingsOptions = <String>[
     'Newest',
-    'Name(Start)',
     "Offering",
     "Requesting"
   ];
@@ -92,11 +91,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void resetPage() {
+  Future<void> resetPage() async {
     setState(() {
       listings.clear();
       allFetched = false;
       lastDocument = null;
+      getData();
     });
   }
 
@@ -148,9 +148,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<Listing>> getPostsBy(String arrangeMethod) async {
     var query;
-    if (arrangeMethod == "Name(Start)") {
-      query = await PostService().getAllPostsByNameStart();
-    } else if (arrangeMethod == "Newest") {
+    if (arrangeMethod == "Newest") {
       query = await PostService().getAllPostsByTime();
     } else if (arrangeMethod == "Offering") {
       query = await PostService().getAllPostsByOffering();
@@ -163,6 +161,7 @@ class _HomePageState extends State<HomePage> {
     } else {
       query = query.limit(PAGE_SIZE);
     }
+    query = query.where("departTime", isGreaterThan: DateTime.now());
     final List<Listing> pagedData = await query.get().then((value) async {
       if (value.docs.isNotEmpty) {
         lastDocument = value.docs.last;
@@ -175,24 +174,24 @@ class _HomePageState extends State<HomePage> {
     return pagedData;
   }
 
-  Future<List<Listing>> getPostsByTime() async {
-    var query = await PostService().getAllPostsByTime();
-    if (lastDocument != null) {
-      query = query.startAfterDocument(lastDocument!).limit(PAGE_SIZE);
-    } else {
-      query = query.limit(PAGE_SIZE);
-    }
-    final List<Listing> pagedData = await query.get().then((value) async {
-      if (value.docs.isNotEmpty) {
-        lastDocument = value.docs.last;
-      } else {
-        lastDocument = null;
-      }
-      var result = await PostService().getListingsFromDocs(value.docs);
-      return result;
-    });
-    return pagedData;
-  }
+  // Future<List<Listing>> getPostsByTime() async {
+  //   var query = await PostService().getAllPostsByTime();
+  //   if (lastDocument != null) {
+  //     query = query.startAfterDocument(lastDocument!).limit(PAGE_SIZE);
+  //   } else {
+  //     query = query.limit(PAGE_SIZE);
+  //   }
+  //   final List<Listing> pagedData = await query.get().then((value) async {
+  //     if (value.docs.isNotEmpty) {
+  //       lastDocument = value.docs.last;
+  //     } else {
+  //       lastDocument = null;
+  //     }
+  //     var result = await PostService().getListingsFromDocs(value.docs);
+  //     return result;
+  //   });
+  //   return pagedData;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +216,6 @@ class _HomePageState extends State<HomePage> {
                       setState(() {
                         arrangeListing = value!;
                         resetPage();
-                        getData();
                       });
                     }),
               ],
@@ -375,12 +373,16 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            body: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: NotificationListener<ScrollEndNotification>(
+            body: Column(
+              children: [
+                Expanded(
+                  child: NotificationListener<ScrollEndNotification>(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        setState(() {
+                          resetPage();
+                        });
+                      },
                       child: ListView.builder(
                         padding: EdgeInsets.zero,
                         itemCount: listings.length + 1,
@@ -397,7 +399,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               );
                             } else {
-                              return SizedBox(
+                              return const SizedBox(
                                 child: Center(
                                   child: Text("That's the end of the listings"),
                                 ),
@@ -408,17 +410,17 @@ class _HomePageState extends State<HomePage> {
                               listing: listings.elementAt(index), onTap: () {});
                         },
                       ),
-                      onNotification: (scrollEnd) {
-                        if (scrollEnd.metrics.atEdge &&
-                            scrollEnd.metrics.pixels > 0) {
-                          getData();
-                        }
-                        return true;
-                      },
                     ),
+                    onNotification: (scrollEnd) {
+                      if (scrollEnd.metrics.atEdge &&
+                          scrollEnd.metrics.pixels > 0) {
+                        getData();
+                      }
+                      return true;
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           )
         : Scaffold(

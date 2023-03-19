@@ -7,6 +7,8 @@ import 'package:rideshare/components/myTextField.dart';
 import 'package:rideshare/resources/PostService.dart';
 import 'package:rideshare/screens/CreateListingScreens/PublishPostSuccessScreen.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:math' as math;
+import 'package:flutter/services.dart';
 
 import '../../models/listing.dart';
 
@@ -102,32 +104,36 @@ class _FinalizeDetailsPageState extends State<FinalizeDetailsPage> {
                 height: 10.0,
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: MyTextField(
-                  controller: priceController,
-                  hintText: "Price (Leave blank if free)",
-                  obscureText: false,
-                  inputType:
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: TextField(
+                  inputFormatters: [DecimalTextInputFormatter(decimalRange: 2)],
+                  keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    hintText: "Price (Leave blank if free)",
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide:
+                          BorderSide(color: Theme.of(context).dividerColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                      borderSide:
+                          BorderSide(color: Theme.of(context).focusColor),
+                    ),
+                    fillColor: Theme.of(context).dialogBackgroundColor,
+                    filled: true,
+                  ),
+                  controller: priceController,
+                  obscureText: false,
                 ),
               ),
               const SizedBox(
                 height: 10.0,
               ),
               Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 28.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
                   child: TextField(
-                    onChanged: (value) {
-                      if (double.tryParse(value) == false &&
-                          int.tryParse(value) == false &&
-                          value.isNotEmpty) {
-                        setState(() {
-                          priceValid = false;
-                        });
-                      } else {
-                        priceValid = true;
-                      }
-                    },
                     maxLines: 10,
                     maxLength: 500,
                     controller: descriptionController,
@@ -209,5 +215,45 @@ class _FinalizeDetailsPageState extends State<FinalizeDetailsPage> {
         ),
       ),
     );
+  }
+}
+
+class DecimalTextInputFormatter extends TextInputFormatter {
+  DecimalTextInputFormatter({required this.decimalRange})
+      : assert(decimalRange == null || decimalRange > 0);
+
+  final int decimalRange;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue, // unused.
+    TextEditingValue newValue,
+  ) {
+    TextSelection newSelection = newValue.selection;
+    String truncated = newValue.text;
+
+    if (decimalRange != null) {
+      String value = newValue.text;
+
+      if (value.contains(".") &&
+          value.substring(value.indexOf(".") + 1).length > decimalRange) {
+        truncated = oldValue.text;
+        newSelection = oldValue.selection;
+      } else if (value == ".") {
+        truncated = "0.";
+
+        newSelection = newValue.selection.copyWith(
+          baseOffset: math.min(truncated.length, truncated.length + 1),
+          extentOffset: math.min(truncated.length, truncated.length + 1),
+        );
+      }
+
+      return TextEditingValue(
+        text: truncated,
+        selection: newSelection,
+        composing: TextRange.empty,
+      );
+    }
+    return newValue;
   }
 }

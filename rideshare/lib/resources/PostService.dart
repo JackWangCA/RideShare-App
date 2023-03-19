@@ -57,18 +57,10 @@ class PostService {
   Future<Query<Map<String, dynamic>>> getAllPostsByTime() async {
     Query<Map<String, dynamic>> query = _firestore
         .collection("posts")
-        .where("departTime", isGreaterThan: DateTime.now())
-        .orderBy("departTime")
+        .where("departTime", isGreaterThanOrEqualTo: DateTime.now())
+        .orderBy("departTime", descending: true)
         .orderBy("publishedTime", descending: true);
-    return query;
-  }
 
-  Future<Query<Map<String, dynamic>>> getAllPostsByNameStart() async {
-    Query<Map<String, dynamic>> query = _firestore
-        .collection("posts")
-        .where("departTime", isGreaterThan: DateTime.now())
-        .orderBy("departTime")
-        .orderBy("startLocationText", descending: true);
     return query;
   }
 

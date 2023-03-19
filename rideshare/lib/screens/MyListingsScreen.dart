@@ -38,6 +38,15 @@ class _MyListingsPageState extends State<MyListingsPage> {
   );
   List<Listing> listings = [];
 
+  Future<void> resetPage() async {
+    setState(() {
+      listings.clear();
+      allFetched = false;
+      lastDocument = null;
+      getData();
+    });
+  }
+
   Future<void> getData() async {
     authUser = FirebaseAuth.instance.currentUser!;
     if (isLoading) {
@@ -142,12 +151,16 @@ class _MyListingsPageState extends State<MyListingsPage> {
               title: Text("My Listings",
                   style: Theme.of(context).textTheme.titleLarge),
             ),
-            body: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: NotificationListener<ScrollEndNotification>(
+            body: Column(
+              children: [
+                Expanded(
+                  child: NotificationListener<ScrollEndNotification>(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        setState(() {
+                          resetPage();
+                        });
+                      },
                       child: ListView.builder(
                         padding: EdgeInsets.zero,
                         itemCount: listings.length + 1,
@@ -175,17 +188,17 @@ class _MyListingsPageState extends State<MyListingsPage> {
                               listing: listings.elementAt(index), onTap: () {});
                         },
                       ),
-                      onNotification: (scrollEnd) {
-                        if (scrollEnd.metrics.atEdge &&
-                            scrollEnd.metrics.pixels > 0) {
-                          getData();
-                        }
-                        return true;
-                      },
                     ),
+                    onNotification: (scrollEnd) {
+                      if (scrollEnd.metrics.atEdge &&
+                          scrollEnd.metrics.pixels > 0) {
+                        getData();
+                      }
+                      return true;
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           )
         : Scaffold(
