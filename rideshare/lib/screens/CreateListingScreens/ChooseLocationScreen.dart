@@ -167,7 +167,9 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
           "key": apiKey,
         },
       );
+      print(autoCompleteuri);
       String? response = await NetworkService.fetchUrl(autoCompleteuri);
+      print(response);
 
       if (response != null) {
         PlaceAutocompleteResponse result =

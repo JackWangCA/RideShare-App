@@ -46,6 +46,12 @@ class Listing {
       };
 
   static Listing fromSnap(DocumentSnapshot snap) {
+    if (snap.data() == null) {
+      return Listing(
+          departTime: DateTime(404),
+          publishedTime: DateTime(404),
+          startLocationText: "404");
+    }
     var snapshot = snap.data() as Map<String, dynamic>;
 
     return Listing(
@@ -59,7 +65,7 @@ class Listing {
       startLocationText: snapshot["startLocationText"],
       destinationText: snapshot["destinationText"],
       description: snapshot["description"],
-      uuid: snapshot["description"],
+      uuid: snapshot["uuid"],
       atCapacity: snapshot["atCapacity"],
     );
   }

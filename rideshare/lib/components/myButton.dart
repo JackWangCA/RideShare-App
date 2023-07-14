@@ -18,7 +18,7 @@ class MyButton extends StatelessWidget {
               onTap!();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).buttonColor,
+              backgroundColor: Theme.of(context).focusColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0), // <-- Radius
               ),

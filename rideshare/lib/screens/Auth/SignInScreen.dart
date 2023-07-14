@@ -86,7 +86,7 @@ class _SignInPageState extends State<SignInPage> {
                       : Padding(
                           padding: const EdgeInsets.fromLTRB(60, 10, 60, 40),
                           child:
-                              Image.asset('lib/images/logo/getaway_white.png'),
+                              Image.asset('lib/images/logo/getaway_black.png'),
                         ),
                   const SizedBox(height: 25),
                   //Welcome Text
@@ -135,7 +135,7 @@ class _SignInPageState extends State<SignInPage> {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium!
-                                .copyWith(color: Theme.of(context).buttonColor),
+                                .copyWith(color: Theme.of(context).focusColor),
                           ),
                         ],
                       ),
@@ -229,7 +229,7 @@ class _SignInPageState extends State<SignInPage> {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium!
-                                .copyWith(color: Theme.of(context).buttonColor),
+                                .copyWith(color: Theme.of(context).focusColor),
                           ),
                         ],
                       ),

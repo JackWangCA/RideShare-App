@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:rideshare/resources/AuthService.dart';
 import 'package:rideshare/screens/Auth/ProfileScreen.dart';
+import 'package:rideshare/screens/ListingDetailsScreen.dart';
 import 'package:rideshare/screens/MyListingsScreen.dart';
 import 'package:rideshare/screens/SettingScreen.dart';
 import 'package:rideshare/models/user.dart' as model;
@@ -31,11 +32,11 @@ class _HomePageState extends State<HomePage> {
   List<Listing> listings = [];
 
   List<String> arrangeListingsOptions = <String>[
-    'Newest',
+    'All',
     "Offering",
     "Requesting"
   ];
-  String arrangeListing = "Newest";
+  String arrangeListing = "All";
 
   bool allFetched = false;
   DocumentSnapshot? lastDocument;
@@ -148,7 +149,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<Listing>> getPostsBy(String arrangeMethod) async {
     var query;
-    if (arrangeMethod == "Newest") {
+    if (arrangeMethod == "All") {
       query = await PostService().getAllPostsByTime();
     } else if (arrangeMethod == "Offering") {
       query = await PostService().getAllPostsByOffering();
@@ -161,7 +162,6 @@ class _HomePageState extends State<HomePage> {
     } else {
       query = query.limit(PAGE_SIZE);
     }
-    query = query.where("departTime", isGreaterThan: DateTime.now());
     final List<Listing> pagedData = await query.get().then((value) async {
       if (value.docs.isNotEmpty) {
         lastDocument = value.docs.last;
@@ -326,7 +326,7 @@ class _HomePageState extends State<HomePage> {
                       Navigator.of(context)
                           .push(
                         MaterialPageRoute(
-                          builder: (context) => MyListingsPage(),
+                          builder: (context) => const MyListingsPage(),
                         ),
                       )
                           .then((value) {
@@ -399,15 +399,30 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               );
                             } else {
-                              return const SizedBox(
+                              return SizedBox(
                                 child: Center(
-                                  child: Text("That's the end of the listings"),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(18),
+                                    child: listings.isEmpty
+                                        ? const Text("No Results Found")
+                                        : const Text(
+                                            "That's the end of the listings"),
+                                  ),
                                 ),
                               );
                             }
                           }
                           return MyListingCard(
-                              listing: listings.elementAt(index), onTap: () {});
+                              listing: listings.elementAt(index),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => ListingDetailsPage(
+                                      uuid: listings.elementAt(index).uuid,
+                                    ),
+                                  ),
+                                );
+                              });
                         },
                       ),
                     ),

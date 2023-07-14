@@ -258,7 +258,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium!
-                              .copyWith(color: Theme.of(context).buttonColor),
+                              .copyWith(color: Theme.of(context).focusColor),
                         ),
                       ],
                     ),

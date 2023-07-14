@@ -74,6 +74,22 @@ class MyListingCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                // Row(
+                //   children: [
+                //     Container(
+                //       padding: const EdgeInsets.symmetric(
+                //           horizontal: 12.0, vertical: 8.0),
+                //       child: RichText(
+                //         text: TextSpan(children: [
+                //           TextSpan(
+                //             text: listing.uuid,
+                //             style: Theme.of(context).textTheme.bodyLarge,
+                //           )
+                //         ]),
+                //       ),
+                //     ),
+                //   ],
+                // ),
                 Row(
                   children: [
                     Container(

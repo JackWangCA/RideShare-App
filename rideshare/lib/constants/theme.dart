@@ -4,7 +4,6 @@ ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   visualDensity: VisualDensity.comfortable,
   canvasColor: Colors.white,
-  buttonColor: Colors.black,
   appBarTheme: const AppBarTheme(
     foregroundColor: Colors.black,
     backgroundColor: Colors.white,
@@ -46,7 +45,6 @@ ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   visualDensity: VisualDensity.comfortable,
   canvasColor: Colors.black,
-  buttonColor: Colors.white,
   hintColor: Colors.grey,
   appBarTheme: const AppBarTheme(
     foregroundColor: Colors.white70,

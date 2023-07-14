@@ -11,6 +11,7 @@ import 'package:rideshare/models/user.dart' as model;
 import 'package:rideshare/resources/PostService.dart';
 
 import '../models/listing.dart';
+import 'ListingDetailsScreen.dart';
 
 class MyListingsPage extends StatefulWidget {
   const MyListingsPage({super.key});
@@ -39,12 +40,14 @@ class _MyListingsPageState extends State<MyListingsPage> {
   List<Listing> listings = [];
 
   Future<void> resetPage() async {
-    setState(() {
-      listings.clear();
-      allFetched = false;
-      lastDocument = null;
-      getData();
-    });
+    if (mounted) {
+      setState(() {
+        listings.clear();
+        allFetched = false;
+        lastDocument = null;
+        getData();
+      });
+    }
   }
 
   Future<void> getData() async {
@@ -185,7 +188,16 @@ class _MyListingsPageState extends State<MyListingsPage> {
                             }
                           }
                           return MyListingCard(
-                              listing: listings.elementAt(index), onTap: () {});
+                              listing: listings.elementAt(index),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => ListingDetailsPage(
+                                      uuid: listings.elementAt(index).uuid,
+                                    ),
+                                  ),
+                                );
+                              });
                         },
                       ),
                     ),
